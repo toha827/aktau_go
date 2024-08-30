@@ -1,7 +1,10 @@
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -9,9 +12,10 @@ import '../../../domains/order_request/order_request_domain.dart';
 import '../../../core/colors.dart';
 import '../../../core/images.dart';
 import '../../../core/text_styles.dart';
+import '../../../utils/num_utils.dart';
 import '../../widgets/primary_bottom_sheet.dart';
 
-class OrderRequestBottomSheet extends StatelessWidget {
+class OrderRequestBottomSheet extends StatefulWidget {
   final OrderRequestDomain orderRequest;
   final VoidCallback onAccept;
 
@@ -21,6 +25,12 @@ class OrderRequestBottomSheet extends StatelessWidget {
     required this.onAccept,
   });
 
+  @override
+  State<OrderRequestBottomSheet> createState() =>
+      _OrderRequestBottomSheetState();
+}
+
+class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return PrimaryBottomSheet(
@@ -90,7 +100,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          orderRequest.user?.name ?? '',
+                          widget.orderRequest.user?.name ?? '',
                           textAlign: TextAlign.center,
                           style: text400Size16Greyscale90,
                         ),
@@ -108,7 +118,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     launchUrlString(
-                        'https://wa.me/${(orderRequest.user?.phone ?? '').replaceAll('+', '')}');
+                        'https://wa.me/${(widget.orderRequest.user?.phone ?? '').replaceAll('+', '')}');
                   },
                   child: Container(
                     width: 32,
@@ -138,7 +148,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                 Expanded(
                   child: SizedBox(
                     child: Text(
-                      orderRequest.comment,
+                      widget.orderRequest.comment,
                       style: text400Size12Greyscale90,
                     ),
                   ),
@@ -158,6 +168,33 @@ class OrderRequestBottomSheet extends StatelessWidget {
             ),
             child: Stack(
               children: [
+                // Container(
+                //   width: double.infinity,
+                //   height: 300,
+                //   decoration: BoxDecoration(
+                //     image: DecorationImage(
+                //       image: NetworkImage(
+                //         "https://via.placeholder.com/344x98",
+                //       ),
+                //       fit: BoxFit.fill,
+                //     ),
+                //   ),
+                //   child: MapWidget(
+                //     onMapCreated: _onMapCreated,
+                //     styleUri: MapboxStyles.STANDARD,
+                //     cameraOptions: CameraOptions(
+                //       zoom: 12,
+                //       bearing: 0,
+                //       pitch: 0,
+                //       center: Point(
+                //         coordinates: Position(
+                //           widget.orderRequest.lng,
+                //           widget.orderRequest.lat,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 Container(
                   width: double.infinity,
                   height: 300,
@@ -169,19 +206,55 @@ class OrderRequestBottomSheet extends StatelessWidget {
                       fit: BoxFit.fill,
                     ),
                   ),
-                  child: MapWidget(
-                    styleUri: MapboxStyles.STANDARD,
-                    cameraOptions: CameraOptions(
-                      zoom: 12,
-                      bearing: 0,
-                      pitch: 0,
-                      center: Point(
-                        coordinates: Position(
-                          orderRequest.lng,
-                          orderRequest.lat,
-                        ),
+                  child: FlutterMap(
+                    options: MapOptions(
+                      initialCenter: LatLng(
+                        widget.orderRequest.lat.toDouble(),
+                        widget.orderRequest.lng.toDouble(),
                       ),
                     ),
+                    children: [
+                      openStreetMapTileLayer,
+                      MarkerLayer(
+                        // rotate: counterRotate,
+                        markers: [
+                          Marker(
+                            point: LatLng(
+                              widget.orderRequest.lat.toDouble(),
+                              widget.orderRequest.lng.toDouble(),
+                            ),
+                            width: 16,
+                            height: 16,
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              Icons.location_on_rounded,
+                              color: Colors.red,
+                            ),
+                          ),
+                          // Marker(
+                          //   point:
+                          //       LatLng(47.18664724067855, -1.5436768515939427),
+                          //   width: 64,
+                          //   height: 64,
+                          //   alignment: Alignment.centerRight,
+                          //   child: ColoredBox(
+                          //     color: Colors.pink,
+                          //     child: Align(
+                          //       alignment: Alignment.centerLeft,
+                          //       child: Text('<--'),
+                          //     ),
+                          //   ),
+                          // ),
+                          // Marker(
+                          //   point:
+                          //       LatLng(47.18664724067855, -1.5436768515939427),
+                          //   rotate: false,
+                          //   child: ColoredBox(color: Colors.black),
+                          // ),
+                        ],
+                      ),
+                      CurrentLocationLayer(),
+                    ],
                   ),
                 ),
               ],
@@ -220,7 +293,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  orderRequest.from,
+                                  widget.orderRequest.from,
                                   textAlign: TextAlign.center,
                                   style: text400Size16Black,
                                 ),
@@ -251,7 +324,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  orderRequest.to,
+                                  widget.orderRequest.to,
                                   textAlign: TextAlign.center,
                                   style: text400Size16Black,
                                 ),
@@ -287,7 +360,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                 Expanded(
                   child: SizedBox(
                     child: Text(
-                      'Цена поездки: 2.200 ₸ ',
+                      'Цена поездки: ${NumUtils.humanizeNumber(widget.orderRequest.price)} ₸ ',
                       style: text400Size16Greyscale90,
                     ),
                   ),
@@ -310,7 +383,7 @@ class OrderRequestBottomSheet extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: PrimaryButton.primary(
-                    onPressed: onAccept,
+                    onPressed: widget.onAccept,
                     text: 'Принять заказ',
                     textStyle: text400Size16White,
                   ),
@@ -324,3 +397,11 @@ class OrderRequestBottomSheet extends StatelessWidget {
     );
   }
 }
+
+TileLayer get openStreetMapTileLayer => TileLayer(
+      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+      // Use the recommended flutter_map_cancellable_tile_provider package to
+      // support the cancellation of loading tiles.
+      tileProvider: CancellableNetworkTileProvider(),
+    );

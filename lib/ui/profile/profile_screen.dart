@@ -289,6 +289,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     ),
                     const SizedBox(height: 24),
                     ListTile(
+                      onTap: wm.navigateDriverRegistration,
                       leading: SvgPicture.asset(icRegistration),
                       title: Text(
                         'Регистрация',
@@ -300,9 +301,10 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     ListTile(
                       onTap: () => showModalBottomSheet(
                         context: context,
-                        builder: (context) => EarningAnalyticsBottomSheet(
-                          me: me
-                        ),
+                        isDismissible: true,
+                        isScrollControlled: true,
+                        builder: (context) =>
+                            EarningAnalyticsBottomSheet(me: me),
                       ),
                       leading: SvgPicture.asset(icAnalytics),
                       title: Text(

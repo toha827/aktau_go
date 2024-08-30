@@ -1,4 +1,5 @@
 import 'package:aktau_go/models/active_request/active_request_model.dart';
+import 'package:aktau_go/models/driver_registered_category/driver_registered_category_model.dart';
 import 'package:aktau_go/models/user/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
@@ -80,4 +81,19 @@ abstract class RestClient {
   /// запрос профиля пользователя
   @GET('v1/order-requests/history')
   Future<List<ActiveRequestModel>> getHistoryOrders();
+
+  /// запрос профиля пользователя
+  @POST('v1/order-requests/category/register')
+  Future<void> createDriverCategory({
+    @Field('governmentNumber') required String governmentNumber,
+    @Field('type') required String type,
+    @Field('model') required String model,
+    @Field('brand') required String brand,
+    @Field('color') required String color,
+    @Field('SSN') required String SSN,
+  });
+
+  /// запрос профиля пользователя
+  @GET('v1/order-requests/category/info')
+  Future<List<DriverRegisteredCategoryModel>> driverRegisteredCategories();
 }

@@ -54,6 +54,13 @@ dependencies:
   url_launcher: ^6.3.0
   slider_button: ^2.1.0
   action_slider: ^0.7.0
+  flutter_map: ^7.0.2
+  flutter_map_cancellable_tile_provider: ^3.0.0
+  latlong2: ^0.9.1
+  flutter_map_location_marker: ^9.1.0
+  socket_io_client: ^3.0.0-beta.2
+  slide_action: ^0.0.2
+  geolocator: ^13.0.1
 
 dev_dependencies:
   flutter_test:

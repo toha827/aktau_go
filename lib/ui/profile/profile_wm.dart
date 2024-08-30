@@ -23,6 +23,8 @@ abstract class IProfileWM implements IWidgetModel {
   void navigateToLogin();
 
   StateNotifier<String> get role;
+
+  Future<void> navigateDriverRegistration();
 }
 
 class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
@@ -57,5 +59,10 @@ class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
     final response = await model.fetchUserProfile();
 
     me.accept(response);
+  }
+
+  @override
+  Future<void> navigateDriverRegistration() async {
+    Routes.router.navigate(Routes.driverRegistrationScreen);
   }
 }

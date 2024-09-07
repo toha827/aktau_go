@@ -6,8 +6,12 @@ import 'package:aktau_go/domains/order_request/order_request_domain.dart';
 import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/models/order_request/mapper/order_request_mapper.dart';
 
+import '../forms/driver_registration_form.dart';
+
 abstract class IOrderRequestsInteractor {
-  Future<List<OrderRequestDomain>> getOrderRequests();
+  Future<List<OrderRequestDomain>> getOrderRequests({
+    required DriverType type,
+  });
 
   Future<void> acceptOrderRequest({
     required UserDomain driver,
@@ -43,8 +47,12 @@ class OrderRequestsInteractor extends IOrderRequestsInteractor {
   ) : _restClient = restClient;
 
   @override
-  Future<List<OrderRequestDomain>> getOrderRequests() async =>
-      orderRequestListMapper(await _restClient.getPendingOrderRequests());
+  Future<List<OrderRequestDomain>> getOrderRequests({
+    required DriverType type,
+  }) async =>
+      orderRequestListMapper(await _restClient.getPendingOrderRequestsByType(
+        type: type.key!,
+      ));
 
   @override
   Future<void> acceptOrderRequest({

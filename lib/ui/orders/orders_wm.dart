@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:aktau_go/domains/active_request/active_request_domain.dart';
+import 'package:aktau_go/forms/driver_registration_form.dart';
 import 'package:aktau_go/interactors/profile_interactor.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
@@ -36,6 +37,8 @@ abstract class IOrdersWM implements IWidgetModel {
 
   StateNotifier<bool> get showNewOrders;
 
+  StateNotifier<DriverType> get orderType;
+
   void tabIndexChanged(int tabIndex);
 
   Future<void> fetchOrderRequests();
@@ -64,8 +67,15 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   );
 
   @override
+  final StateNotifier<DriverType> orderType = StateNotifier(
+    initValue: DriverType.TAXI,
+  );
+
+  @override
   void tabIndexChanged(int tabIndex) {
     this.tabIndex.accept(tabIndex);
+    orderType.accept(DriverType.values[tabIndex]);
+    fetchOrderRequests();
   }
 
   @override
@@ -94,7 +104,9 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   @override
   Future<void> fetchOrderRequests() async {
     try {
-      final response = await model.getOrderRequests();
+      final response = await model.getOrderRequests(
+        type: orderType.value!,
+      );
       orderRequests.accept(response);
       showNewOrders.accept(false);
     } on Exception catch (e) {
@@ -104,7 +116,9 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
   Future<void> fetchOrderRequestsCount() async {
     try {
-      final response = await model.getOrderRequests();
+      final response = await model.getOrderRequests(
+        type: orderType.value!,
+      );
       // orderRequests.accept(response);
 
       if (response.length != orderRequests.value!.length) {

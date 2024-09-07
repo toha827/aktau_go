@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:action_slider/action_slider.dart';
 import 'package:aktau_go/domains/active_request/active_request_domain.dart';
@@ -11,11 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:slider_button/slider_button.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../core/colors.dart';
 import '../../../core/images.dart';
 import '../../../core/text_styles.dart';
+import '../../../utils/logger.dart';
 import '../../widgets/primary_bottom_sheet.dart';
 
 class ActiveOrderBottomSheet extends StatefulWidget {
@@ -36,6 +39,8 @@ class ActiveOrderBottomSheet extends StatefulWidget {
 
 class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   late ActiveRequestDomain activeRequest = widget.activeOrder;
+
+  late IO.Socket socket;
 
   int waitingTimerLeft = 180;
 
@@ -88,6 +93,33 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
       orderRequest: widget.activeOrder.orderRequest!,
     );
     fetchActiveOrder();
+  }
+
+  Future<void> initializeSocket() async {
+    try {
+      socket = IO.io(
+        'https://taxi.aktau-go.kz',
+        <String, dynamic>{
+          'transports': ['websocket'],
+          'autoConnect': false,
+          'query': {
+            'userId': 'fb437deb-32db-4e4a-8c3e-3fb7c0f532e1',
+            // Замена параметром userId
+          },
+        },
+      );
+
+      socket.on('orderRejected', (data) {
+        print('Received new order: $data');
+        // Обработка полученных данных
+        fetchActiveOrder();
+        // showNewOrders.accept(true);
+      });
+      socket.onDisconnect((_) => logger.e('disconnect'));
+      socket.connect();
+    } on Exception catch (e) {
+      logger.e(e);
+    }
   }
 
   @override
@@ -145,6 +177,19 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                   width: double.infinity,
                   child: Text(
                     'Вы в пути',
+                    style: TextStyle(
+                      color: Color(0xFF261619),
+                      fontSize: 20,
+                      fontFamily: 'Rubik',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ) else if (!isOrderFinished &&
+                  activeRequest.orderRequest?.orderStatus == 'REJECTED')
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Заказ отменен',
                     style: TextStyle(
                       color: Color(0xFF261619),
                       fontSize: 20,
@@ -470,7 +515,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                     textStyle: text400Size16White,
                   ),
                 )
-              else if (isOrderFinished)
+              else if (isOrderFinished || activeRequest.orderRequest?.orderStatus == "REJECTED")
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(

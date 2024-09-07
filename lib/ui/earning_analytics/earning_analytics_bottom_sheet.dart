@@ -227,7 +227,9 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: ShapeDecoration(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(

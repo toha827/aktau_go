@@ -43,6 +43,12 @@ abstract class RestClient {
   Future<List<OrderRequestResponseModel>> getPendingOrderRequests();
 
   /// запрос профиля пользователя
+  @GET('v1/order-requests/{type}')
+  Future<List<OrderRequestResponseModel>> getPendingOrderRequestsByType({
+    @Path('type') required String type,
+  });
+
+  /// запрос профиля пользователя
   @GET('v1/user/GetMe')
   Future<UserModel> getUserProfile();
 

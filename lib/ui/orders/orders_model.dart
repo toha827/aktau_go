@@ -4,6 +4,7 @@ import 'package:elementary/elementary.dart';
 import '../../domains/active_request/active_request_domain.dart';
 import '../../domains/order_request/order_request_domain.dart';
 import '../../domains/user/user_domain.dart';
+import '../../forms/driver_registration_form.dart';
 import '../../interactors/order_requests_interactor.dart';
 
 class OrdersModel extends ElementaryModel {
@@ -15,8 +16,12 @@ class OrdersModel extends ElementaryModel {
     this._profileInteractor,
   ) : super();
 
-  Future<List<OrderRequestDomain>> getOrderRequests() =>
-      _orderRequestsInteractor.getOrderRequests();
+  Future<List<OrderRequestDomain>> getOrderRequests({
+    required DriverType type,
+  }) =>
+      _orderRequestsInteractor.getOrderRequests(
+        type: type,
+      );
 
   Future<UserDomain> getUserProfile() => _profileInteractor.fetchUserProfile();
 

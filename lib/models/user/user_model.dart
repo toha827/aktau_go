@@ -1,3 +1,4 @@
+import 'package:aktau_go/models/order_request/order_request_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../earnings/earnings_model.dart';
@@ -15,12 +16,16 @@ class UserModel {
   final UserPropsModel? props;
   final num? rating;
   final EarningsModel? earnings;
+  final EarningsModel? orders;
+  final List<OrderRequestModel>? ratedOrders;
 
   const UserModel({
     this.id,
     this.props,
     this.rating,
     this.earnings,
+    this.orders,
+    this.ratedOrders,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

@@ -82,7 +82,17 @@ extension IdentityStatusTypeExt on DriverType {
     DriverType.CARGO: "Груз",
   };
 
+
+  static const assetMap = {
+    DriverType.TAXI: "assets/icons/taxi.svg",
+    DriverType.DELIVERY: "assets/icons/delivery.svg",
+    DriverType.INTERCITY_TAXI: "assets/icons/intercity.svg",
+    DriverType.CARGO: "assets/icons/truck.svg",
+  };
+
   String? get value => valueMap[this];
 
   String? get key => keyMap[this];
+
+  String? get asset => assetMap[this];
 }

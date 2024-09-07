@@ -1,6 +1,8 @@
 import 'package:action_slider/action_slider.dart';
 import 'package:aktau_go/domains/order_request/order_request_domain.dart';
+import 'package:aktau_go/forms/driver_registration_form.dart';
 import 'package:aktau_go/ui/orders/widgets/order_request_card.dart';
+import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:aktau_go/ui/widgets/text_locale.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,8 @@ import '../../core/text_styles.dart';
 
 import 'package:elementary/elementary.dart';
 
+import '../../domains/driver_registered_category/driver_registered_category_domain.dart';
+import '../../router/router.dart';
 import 'orders_wm.dart';
 
 class OrdersScreen extends ElementaryWidget<IOrdersWM> {
@@ -22,13 +26,15 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
 
   @override
   Widget build(IOrdersWM wm) {
-    return DoubleSourceBuilder(
+    return TripleSourceBuilder(
         firstSource: wm.tabIndex,
         secondSource: wm.showNewOrders,
+        thirdSource: wm.orderType,
         builder: (
           context,
           int? tabIndex,
           bool? showNewOrders,
+          DriverType? orderType,
         ) {
           return Scaffold(
             appBar: AppBar(
@@ -48,11 +54,14 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
                 ),
               ),
             ),
-            body: StateNotifierBuilder(
-                listenableState: wm.orderRequests,
+            body: DoubleSourceBuilder(
+                firstSource: wm.orderRequests,
+                secondSource: wm.driverRegisteredCategories,
                 builder: (
                   context,
                   List<OrderRequestDomain>? orderRequests,
+                  List<DriverRegisteredCategoryDomain>?
+                      driverRegisteredCategories,
                 ) {
                   return Stack(
                     children: [
@@ -67,20 +76,7 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
                                 scrollDirection: Axis.horizontal,
                                 children: [
                                   const SizedBox(width: 16),
-                                  ...[
-                                    {
-                                      'label': 'Такси',
-                                      'asset': 'assets/icons/taxi.svg',
-                                    },
-                                    {
-                                      'label': 'Груз',
-                                      'asset': 'assets/icons/truck.svg',
-                                    },
-                                    {
-                                      'label': 'Доставка',
-                                      'asset': 'assets/icons/delivery.svg',
-                                    },
-                                  ].asMap().entries.map(
+                                  ...DriverType.values.asMap().entries.map(
                                         (e) => InkWell(
                                           onTap: () =>
                                               wm.tabIndexChanged(e.key),
@@ -107,14 +103,14 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
                                             child: Row(
                                               children: [
                                                 SvgPicture.asset(
-                                                  e.value['asset']!,
+                                                  e.value.asset!,
                                                   color: tabIndex == e.key
                                                       ? Colors.white
                                                       : Colors.grey,
                                                 ),
                                                 const SizedBox(width: 8),
                                                 TextLocale(
-                                                  e.value['label']!,
+                                                  e.value.value!,
                                                   style: tabIndex == e.key
                                                       ? text400Size16White
                                                       : text400Size16Greyscale30,
@@ -187,12 +183,41 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            ...(orderRequests ?? []).map(
-                              (e) => InkWell(
-                                onTap: () => wm.onOrderRequestTap(e),
-                                child: OrderRequestCard(orderRequest: e),
+                            if ((driverRegisteredCategories ?? []).any(
+                                (category) =>
+                                    category.categoryType == orderType))
+                              ...(orderRequests ?? []).map(
+                                (e) => InkWell(
+                                  onTap: () => wm.onOrderRequestTap(e),
+                                  child: OrderRequestCard(orderRequest: e),
+                                ),
+                              )
+                            else
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Text(
+                                          'Чтобы начать принимать заказы нужно зарегться на категорию',
+                                          style: text400Size16Greyscale90,
+                                        ),
+                                      ),
+                                      PrimaryButton.primary(
+                                        onPressed: () {
+                                          Routes.router.navigate(
+                                              Routes.driverRegistrationScreen);
+                                        },
+                                        text: 'Зарегестрироваться',
+                                        textStyle: text400Size16White,
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
-                            )
                           ],
                         ),
                       ),

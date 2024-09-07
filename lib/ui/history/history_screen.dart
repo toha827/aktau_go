@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../core/colors.dart';
 import '../../core/text_styles.dart';
 import '../../domains/active_request/active_request_domain.dart';
+import '../../forms/driver_registration_form.dart';
 import '../widgets/text_locale.dart';
 import 'history_wm.dart';
 
@@ -54,20 +55,7 @@ class HistoryScreen extends ElementaryWidget<IHistoryWM> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       const SizedBox(width: 16),
-                      ...[
-                        {
-                          'label': 'Такси',
-                          'asset': 'assets/icons/taxi.svg',
-                        },
-                        {
-                          'label': 'Груз',
-                          'asset': 'assets/icons/truck.svg',
-                        },
-                        {
-                          'label': 'Доставка',
-                          'asset': 'assets/icons/delivery.svg',
-                        },
-                      ].asMap().entries.map(
+                      ...DriverType.values.asMap().entries.map(
                             (e) => InkWell(
                               onTap: () => wm.tabIndexChanged(e.key),
                               child: Container(
@@ -89,14 +77,14 @@ class HistoryScreen extends ElementaryWidget<IHistoryWM> {
                                 child: Row(
                                   children: [
                                     SvgPicture.asset(
-                                      e.value['asset']!,
+                                      e.value.asset!,
                                       color: tabIndex == e.key
                                           ? Colors.white
                                           : Colors.grey,
                                     ),
                                     const SizedBox(width: 8),
                                     TextLocale(
-                                      e.value['label']!,
+                                      e.value.value!,
                                       style: tabIndex == e.key
                                           ? text400Size16White
                                           : text400Size16Greyscale30,

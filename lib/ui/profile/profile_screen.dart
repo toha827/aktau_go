@@ -1,14 +1,17 @@
 import 'package:aktau_go/domains/user/user_domain.dart';
 import 'package:aktau_go/ui/earning_analytics/earning_analytics_bottom_sheet.dart';
+import 'package:aktau_go/ui/widgets/primary_bottom_sheet.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../core/colors.dart';
 import '../../core/images.dart';
 import '../../core/text_styles.dart';
+import '../about_application/about_application_screen.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/text_locale.dart';
 import './profile_wm.dart';
@@ -149,7 +152,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                                         ),
                                         const SizedBox(width: 10),
                                         Text(
-                                          '(4 отзыва)',
+                                          '(${me?.ratedOrders.length} отзыва)',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             color: Color(0xFF261619),
@@ -316,6 +319,51 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     const SizedBox(height: 24),
                     ListTile(
                       leading: SvgPicture.asset(icSupport),
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isDismissible: true,
+                        isScrollControlled: true,
+                        builder: (context) => PrimaryBottomSheet(
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Column(
+                            children: [
+                              Center(
+                                child: Container(
+                                  width: 38,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: greyscale30,
+                                    borderRadius: BorderRadius.circular(1.4),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  'Поддержка',
+                                  style: text500Size24Greyscale90,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                onTap: () {
+                                  launchUrlString('https://wa.me/77088431748');
+                                },
+                                contentPadding: EdgeInsets.zero,
+                                title: TextLocale(
+                                  'Написать ватсап',
+                                  style: text400Size16Greyscale90,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
                       title: Text(
                         'Поддержка',
                         style: text400Size16Black,
@@ -324,6 +372,11 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     ),
                     const SizedBox(height: 24),
                     ListTile(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AboutApplicationScreen(),
+                        ),
+                      ),
                       leading: SvgPicture.asset(icInfo),
                       title: Text(
                         'О приложении',
@@ -333,7 +386,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     ),
                     const SizedBox(height: 24),
                     ListTile(
-                      onTap: () {},
+                      onTap: wm.logOut,
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 16),
                       title: TextLocale(

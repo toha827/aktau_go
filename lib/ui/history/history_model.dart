@@ -10,6 +10,10 @@ class HistoryModel extends ElementaryModel {
     this._orderRequsetInteractor,
   ) : super();
 
-  Future<List<ActiveRequestDomain>> getHistoryOrders() =>
-      _orderRequsetInteractor.getHistoryOrders();
+  Future<List<ActiveRequestDomain>> getHistoryOrders({
+    required String type,
+  }) =>
+      _orderRequsetInteractor.getHistoryOrders(
+        type: type,
+      );
 }

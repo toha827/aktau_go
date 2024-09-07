@@ -33,9 +33,15 @@ abstract class IOrderRequestsInteractor {
     required OrderRequestDomain orderRequest,
   });
 
+  Future<void> rejectOrderRequest({
+    required String orderRequestId,
+  });
+
   Future<ActiveRequestDomain> getActiveOrder();
 
-  Future<List<ActiveRequestDomain>> getHistoryOrders();
+  Future<List<ActiveRequestDomain>> getHistoryOrders({
+    required String type,
+  });
 }
 
 @singleton
@@ -99,6 +105,18 @@ class OrderRequestsInteractor extends IOrderRequestsInteractor {
       );
 
   @override
-  Future<List<ActiveRequestDomain>> getHistoryOrders() async =>
-      activeRequestListMapper(await _restClient.getHistoryOrders());
+  Future<List<ActiveRequestDomain>> getHistoryOrders({
+    required String type,
+  }) async =>
+      activeRequestListMapper(await _restClient.getHistoryOrders(
+        type: type,
+      ));
+
+  @override
+  Future<void> rejectOrderRequest({
+    required String orderRequestId,
+  }) =>
+      _restClient.rejectOrderRequest(
+        orderRequestId: orderRequestId,
+      );
 }

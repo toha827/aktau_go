@@ -5,6 +5,7 @@ import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:seafarer/seafarer.dart';
 
 import '../../domains/user/user_domain.dart';
 import './profile_model.dart';
@@ -25,6 +26,8 @@ abstract class IProfileWM implements IWidgetModel {
   StateNotifier<String> get role;
 
   Future<void> navigateDriverRegistration();
+
+  void logOut();
 }
 
 class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
@@ -64,5 +67,15 @@ class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
   @override
   Future<void> navigateDriverRegistration() async {
     Routes.router.navigate(Routes.driverRegistrationScreen);
+  }
+
+  @override
+  void logOut() {
+    inject<SessionInteractor>().logout();
+    Routes.router.navigate(
+      Routes.loginScreen,
+      navigationType: NavigationType.pushAndRemoveUntil,
+      removeUntilPredicate: (predicate) => false,
+    );
   }
 }

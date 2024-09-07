@@ -15,6 +15,12 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       earnings: json['earnings'] == null
           ? null
           : EarningsModel.fromJson(json['earnings'] as Map<String, dynamic>),
+      orders: json['orders'] == null
+          ? null
+          : EarningsModel.fromJson(json['orders'] as Map<String, dynamic>),
+      ratedOrders: (json['ratedOrders'] as List<dynamic>?)
+          ?.map((e) => OrderRequestModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -22,4 +28,6 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'props': instance.props,
       'rating': instance.rating,
       'earnings': instance.earnings,
+      'orders': instance.orders,
+      'ratedOrders': instance.ratedOrders,
     };

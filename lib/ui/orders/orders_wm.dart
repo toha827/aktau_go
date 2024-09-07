@@ -11,6 +11,7 @@ import 'package:elementary_helper/elementary_helper.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../../domains/driver_registered_category/driver_registered_category_domain.dart';
 import '../../domains/order_request/order_request_domain.dart';
 import '../../domains/user/user_domain.dart';
 import '../../interactors/order_requests_interactor.dart';
@@ -32,6 +33,9 @@ abstract class IOrdersWM implements IWidgetModel {
   StateNotifier<List<OrderRequestDomain>> get orderRequests;
 
   StateNotifier<ActiveRequestDomain> get activeOrder;
+
+  StateNotifier<List<DriverRegisteredCategoryDomain>>
+      get driverRegisteredCategories;
 
   StateNotifier<UserDomain> get me;
 
@@ -72,6 +76,12 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   );
 
   @override
+  final StateNotifier<List<DriverRegisteredCategoryDomain>>
+      driverRegisteredCategories = StateNotifier(
+    initValue: const [],
+  );
+
+  @override
   void tabIndexChanged(int tabIndex) {
     this.tabIndex.accept(tabIndex);
     orderType.accept(DriverType.values[tabIndex]);
@@ -89,6 +99,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   @override
   void initWidgetModel() {
     super.initWidgetModel();
+    fetchDriverRegisteredCategories();
     fetchOrderRequests();
     fetchUserProfile();
     fetchActiveOrder();
@@ -99,6 +110,13 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     //     fetchOrderRequestsCount();
     //   },
     // );
+  }
+
+  void fetchDriverRegisteredCategories() async {
+    final response =
+        await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
+
+    driverRegisteredCategories.accept(response);
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'package:aktau_go/domains/order_request/order_request_domain.dart';
+
 class UserDomain {
   final String id;
   final String phone;
@@ -12,6 +14,11 @@ class UserDomain {
   final num today;
   final num thisWeek;
   final num thisMonth;
+  final num ordersToday;
+  final num ordersThisWeek;
+  final num ordersThisMonth;
+
+  final List<OrderRequestDomain> ratedOrders;
 
   const UserDomain({
     String? id,
@@ -25,6 +32,10 @@ class UserDomain {
     num? today,
     num? thisWeek,
     num? thisMonth,
+    num? ordersToday,
+    num? ordersThisWeek,
+    num? ordersThisMonth,
+    List<OrderRequestDomain>? ratedOrders,
   })  : id = id ?? '',
         phone = phone ?? '',
         name = name ?? '',
@@ -36,5 +47,9 @@ class UserDomain {
         today = today ?? 0,
         thisWeek = thisWeek ?? 0,
         thisMonth = thisMonth ?? 0,
-        session = session ?? '';
+        ordersToday = ordersToday ?? 0,
+        ordersThisWeek = ordersThisWeek ?? 0,
+        ordersThisMonth = ordersThisMonth ?? 0,
+        session = session ?? '',
+        ratedOrders = ratedOrders ?? const [];
 }

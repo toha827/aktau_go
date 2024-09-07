@@ -43,7 +43,7 @@ abstract class RestClient {
   Future<List<OrderRequestResponseModel>> getPendingOrderRequests();
 
   /// запрос профиля пользователя
-  @GET('v1/order-requests/{type}')
+  @GET('v1/order-requests/active/{type}')
   Future<List<OrderRequestResponseModel>> getPendingOrderRequestsByType({
     @Path('type') required String type,
   });
@@ -67,6 +67,12 @@ abstract class RestClient {
   });
 
   /// запрос профиля пользователя
+  @POST('v1/order-requests/reject/{orderId}')
+  Future<void> rejectOrderRequest({
+    @Path('orderId') required String orderRequestId,
+  });
+
+  /// запрос профиля пользователя
   @POST('v1/order-requests/start')
   Future<void> startOrderRequest({
     @Field('driverId') required String driverId,
@@ -85,8 +91,10 @@ abstract class RestClient {
   Future<ActiveRequestModel> getMyActiveOrder();
 
   /// запрос профиля пользователя
-  @GET('v1/order-requests/history')
-  Future<List<ActiveRequestModel>> getHistoryOrders();
+  @GET('v1/order-requests/history/{type}')
+  Future<List<ActiveRequestModel>> getHistoryOrders({
+    @Path('type') required String type,
+  });
 
   /// запрос профиля пользователя
   @POST('v1/order-requests/category/register')

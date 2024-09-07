@@ -159,7 +159,7 @@ class _RestClient implements RestClient {
     )
             .compose(
               _dio.options,
-              'v1/order-requests/${type}',
+              'v1/order-requests/active/${type}',
               queryParameters: queryParameters,
               data: _data,
             )
@@ -263,6 +263,30 @@ class _RestClient implements RestClient {
   }
 
   @override
+  Future<void> rejectOrderRequest({required String orderRequestId}) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    await _dio.fetch<void>(_setStreamType<void>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'v1/order-requests/reject/${orderRequestId}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        ))));
+  }
+
+  @override
   Future<void> startOrderRequest({
     required String driverId,
     required String orderRequestId,
@@ -350,7 +374,8 @@ class _RestClient implements RestClient {
   }
 
   @override
-  Future<List<ActiveRequestModel>> getHistoryOrders() async {
+  Future<List<ActiveRequestModel>> getHistoryOrders(
+      {required String type}) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -363,7 +388,7 @@ class _RestClient implements RestClient {
     )
             .compose(
               _dio.options,
-              'v1/order-requests/history',
+              'v1/order-requests/history/${type}',
               queryParameters: queryParameters,
               data: _data,
             )

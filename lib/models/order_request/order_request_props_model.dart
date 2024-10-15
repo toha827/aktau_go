@@ -1,16 +1,21 @@
+import 'package:aktau_go/models/props/props_model.dart';
+import 'package:aktau_go/models/user/user_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'order_request_props_model.g.dart';
 
 @JsonSerializable()
 class OrderRequestPropsModel {
+  @JsonKey(name: 'id', fromJson: _propsToString)
+  final String? id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   @JsonKey(name: 'driverId', fromJson: _propsToString)
   final String? driverId;
+  final PropsModel? clientId;
   final String? user_phone;
   final String? orderType;
-  final String? orderstatus;
+  final String? orderStatus;
   final String? from;
   final String? to;
   final DateTime? startTime;
@@ -23,12 +28,14 @@ class OrderRequestPropsModel {
   final String? sessionid;
 
   const OrderRequestPropsModel({
+    this.id,
     this.createdAt,
     this.updatedAt,
     this.driverId,
+    this.clientId,
     this.user_phone,
     this.orderType,
-    this.orderstatus,
+    this.orderStatus,
     this.from,
     this.to,
     this.startTime,

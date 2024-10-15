@@ -1,5 +1,8 @@
+import 'package:aktau_go/interactors/common/rest_client.dart';
+import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,9 +28,11 @@ abstract class ISessionInteractor {
 @lazySingleton
 class SessionInteractor extends ISessionInteractor {
   final SharedPreferences sharedPreferences;
+  final RestClient _restClient;
 
   SessionInteractor(
     this.sharedPreferences,
+    this._restClient,
   ) {
     checkAccessTokenExpired();
   }
@@ -50,12 +55,18 @@ class SessionInteractor extends ISessionInteractor {
   void logout() {
     sharedPreferences.remove(ACCESS_TOKEN);
     sharedPreferences.remove(REFRESH_TOKEN);
+    sharedPreferences.remove(SELECTED_ROLE);
   }
 
   @override
   void setAccessToken(String value) {
     sharedPreferences.setString(ACCESS_TOKEN, value);
-    toggleRole('TENANT');
+    toggleRole(sharedPreferences.getString(SELECTED_ROLE) ?? 'TENANT');
+    FirebaseMessaging.instance.onTokenRefresh.listen((value) {
+      _restClient.saveFirebaseDeviceToken(
+        deviceToken: value,
+      );
+    });
   }
 
   @override

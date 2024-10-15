@@ -8,11 +8,13 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../core/button_styles.dart';
 import '../../core/colors.dart';
 import '../../core/images.dart';
 import '../../core/text_styles.dart';
 import '../about_application/about_application_screen.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/primary_outlined_button.dart';
 import '../widgets/text_locale.dart';
 import './profile_wm.dart';
 
@@ -44,7 +46,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     style: text500Size24Black,
                   ),
                 ),
-                if (role != 'TENANT')
+                if (!['TENANT', 'LANDLORD'].contains(role))
                   SizedBox(
                     width: double.infinity,
                     child: Text(
@@ -55,7 +57,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
               ],
             ),
             centerTitle: false,
-            bottom: role == 'TENANT'
+            bottom: ['TENANT', 'LANDLORD'].contains(role)
                 ? null
                 : PreferredSize(
                     preferredSize: Size.fromHeight(1),
@@ -65,15 +67,29 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     ),
                   ),
           ),
-          body: role == 'TENANT'
+          body: (['TENANT', 'LANDLORD'].contains(role))
               ? ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
+                    if (role != "GUEST")
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: PrimaryOutlinedButton.primary(
+                          style: outlinedRounded12,
+                          onPressed: wm.toggleRole,
+                          text: role == 'TENANT'
+                              ? 'Режим водителя'
+                              : 'Режим пассажира',
+                          textStyle: text400Size16Greyscale90,
+                        ),
+                      ),
                     Container(
-                      width: 343,
+                      width: double.infinity,
                       height: 96,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 24),
+                        horizontal: 16,
+                        vertical: 24,
+                      ),
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -355,7 +371,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                                 },
                                 contentPadding: EdgeInsets.zero,
                                 title: TextLocale(
-                                  'Написать ватсап',
+                                  'Написать Whatsapp',
                                   style: text400Size16Greyscale90,
                                 ),
                               ),
@@ -408,6 +424,51 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     const SizedBox(height: 16),
                     ListTile(
                       leading: SvgPicture.asset(icSupport),
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isDismissible: true,
+                        isScrollControlled: true,
+                        builder: (context) => PrimaryBottomSheet(
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Column(
+                            children: [
+                              Center(
+                                child: Container(
+                                  width: 38,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: greyscale30,
+                                    borderRadius: BorderRadius.circular(1.4),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  'Поддержка',
+                                  style: text500Size24Greyscale90,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ListTile(
+                                onTap: () {
+                                  launchUrlString('https://wa.me/77088431748');
+                                },
+                                contentPadding: EdgeInsets.zero,
+                                title: TextLocale(
+                                  'Написать Whatsapp',
+                                  style: text400Size16Greyscale90,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      ),
                       title: Text(
                         'Поддержка',
                         style: text400Size16Black,
@@ -417,6 +478,11 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     const SizedBox(height: 24),
                     ListTile(
                       leading: SizedBox(),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AboutApplicationScreen(),
+                        ),
+                      ),
                       title: Text(
                         'О приложении',
                         style: text400Size16Black,

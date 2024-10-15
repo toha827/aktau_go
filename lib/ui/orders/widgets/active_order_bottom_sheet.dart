@@ -1,36 +1,34 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:action_slider/action_slider.dart';
 import 'package:aktau_go/domains/active_request/active_request_domain.dart';
 import 'package:aktau_go/domains/user/user_domain.dart';
 import 'package:aktau_go/interactors/order_requests_interactor.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:aktau_go/utils/num_utils.dart';
 import 'package:aktau_go/utils/utils.dart';
+import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'package:slider_button/slider_button.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../core/colors.dart';
 import '../../../core/images.dart';
 import '../../../core/text_styles.dart';
-import '../../../utils/logger.dart';
 import '../../widgets/primary_bottom_sheet.dart';
 
 class ActiveOrderBottomSheet extends StatefulWidget {
   final UserDomain me;
   final ActiveRequestDomain activeOrder;
   final VoidCallback onCancel;
+  final StateNotifier<ActiveRequestDomain> activeOrderListener;
 
   const ActiveOrderBottomSheet({
     super.key,
     required this.me,
     required this.activeOrder,
     required this.onCancel,
+    required this.activeOrderListener,
   });
 
   @override
@@ -40,13 +38,19 @@ class ActiveOrderBottomSheet extends StatefulWidget {
 class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   late ActiveRequestDomain activeRequest = widget.activeOrder;
 
-  late IO.Socket socket;
-
   int waitingTimerLeft = 180;
 
   Timer? waitingTimer;
 
   bool isOrderFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.activeOrderListener.addListener(() {
+      fetchActiveOrder();
+    });
+  }
 
   Future<void> fetchActiveOrder() async {
     try {
@@ -106,40 +110,6 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
     fetchActiveOrder();
   }
 
-  Future<void> initializeSocket() async {
-    try {
-      socket = IO.io(
-        'https://taxi.aktau-go.kz',
-        <String, dynamic>{
-          'transports': ['websocket'],
-          'autoConnect': false,
-          'query': {
-            'userId': 'fb437deb-32db-4e4a-8c3e-3fb7c0f532e1',
-            // Замена параметром userId
-          },
-        },
-      );
-
-      socket.on('orderRejected', (data) {
-        print('Received new order: $data');
-        final snackBar = SnackBar(
-          content: Text(
-            'Заказ был отменен',
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-        // Обработка полученных данных
-        fetchActiveOrder();
-        // showNewOrders.accept(true);
-      });
-      socket.onDisconnect((_) => logger.e('disconnect'));
-      socket.connect();
-    } on Exception catch (e) {
-      logger.e(e);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -150,7 +120,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
           horizontal: 16,
         ),
         child: SizedBox(
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.of(context).size.height * 0.9,
           child: Column(
             children: [
               Expanded(
@@ -168,7 +138,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      if (activeRequest.orderRequest?.orderStatus == 'STARTED')
+                      if (!isOrderFinished &&
+                          activeRequest.orderRequest?.orderStatus == 'STARTED')
                         SizedBox(
                           width: double.infinity,
                           child: Text(
@@ -181,8 +152,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                             ),
                           ),
                         )
-                      else if (activeRequest.orderRequest?.orderStatus ==
-                          'WAITING')
+                      else if (!isOrderFinished &&
+                          activeRequest.orderRequest?.orderStatus == 'WAITING')
                         SizedBox(
                           width: double.infinity,
                           child: Text(
@@ -209,7 +180,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                             ),
                           ),
                         )
-                      else if (!isOrderFinished &&
+                      else if (isOrderFinished &&
                           activeRequest.orderRequest?.orderStatus == 'REJECTED')
                         SizedBox(
                           width: double.infinity,
@@ -545,7 +516,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                   ),
                 ),
               ),
-              if (activeRequest.orderRequest?.orderStatus == 'STARTED')
+              if (!isOrderFinished &&
+                  activeRequest.orderRequest?.orderStatus == 'STARTED')
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(
@@ -554,7 +526,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                     textStyle: text400Size16White,
                   ),
                 )
-              else if (activeRequest.orderRequest?.orderStatus == 'WAITING')
+              else if (!isOrderFinished &&
+                  activeRequest.orderRequest?.orderStatus == 'WAITING')
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(
@@ -584,44 +557,45 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                   ),
                 ),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: PrimaryButton.secondary(
-                        onPressed: () {
-                          launchUrlString(
-                              'tel://${(widget.activeOrder.whatsappUser?.phone ?? '')}');
-                        },
-                        text: 'Отказаться',
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(icCall),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Позвонить',
-                              style: text400Size16Greyscale60,
-                            ),
-                          ],
+              if (!isOrderFinished)
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton.secondary(
+                          onPressed: () {
+                            launchUrlString(
+                                'tel://${(widget.activeOrder.whatsappUser?.phone ?? '')}');
+                          },
+                          text: 'Отказаться',
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(icCall),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Позвонить',
+                                style: text400Size16Greyscale60,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: PrimaryButton.secondary(
-                        onPressed: () {
-                          rejectOrder();
-                        },
-                        text: 'Отменить заказ',
-                        textStyle: text400Size16Greyscale60,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: PrimaryButton.secondary(
+                          onPressed: () {
+                            rejectOrder();
+                          },
+                          text: 'Отменить заказ',
+                          textStyle: text400Size16Greyscale60,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
               const SizedBox(height: 24),
             ],
           ),

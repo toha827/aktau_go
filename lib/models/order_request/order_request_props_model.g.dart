@@ -9,6 +9,8 @@ part of 'order_request_props_model.dart';
 OrderRequestPropsModel _$OrderRequestPropsModelFromJson(
         Map<String, dynamic> json) =>
     OrderRequestPropsModel(
+      id: OrderRequestPropsModel._propsToString(
+          json['id'] as Map<String, dynamic>?),
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -17,9 +19,12 @@ OrderRequestPropsModel _$OrderRequestPropsModelFromJson(
           : DateTime.parse(json['updatedAt'] as String),
       driverId: OrderRequestPropsModel._propsToString(
           json['driverId'] as Map<String, dynamic>?),
+      clientId: json['clientId'] == null
+          ? null
+          : PropsModel.fromJson(json['clientId'] as Map<String, dynamic>),
       user_phone: json['user_phone'] as String?,
       orderType: json['orderType'] as String?,
-      orderstatus: json['orderstatus'] as String?,
+      orderStatus: json['orderStatus'] as String?,
       from: json['from'] as String?,
       to: json['to'] as String?,
       startTime: json['startTime'] == null
@@ -39,12 +44,14 @@ OrderRequestPropsModel _$OrderRequestPropsModelFromJson(
 Map<String, dynamic> _$OrderRequestPropsModelToJson(
         OrderRequestPropsModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
       'driverId': instance.driverId,
+      'clientId': instance.clientId,
       'user_phone': instance.user_phone,
       'orderType': instance.orderType,
-      'orderstatus': instance.orderstatus,
+      'orderStatus': instance.orderStatus,
       'from': instance.from,
       'to': instance.to,
       'startTime': instance.startTime?.toIso8601String(),

@@ -7,9 +7,11 @@ part 'active_request_model.g.dart';
 @JsonSerializable()
 class ActiveRequestModel {
   final UserModel? whatsappUser;
+  final UserModel? driver;
   final OrderRequestModel? orderRequest;
 
   const ActiveRequestModel({
+    this.driver,
     this.whatsappUser,
     this.orderRequest,
   });

@@ -7,6 +7,8 @@ import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/models/order_request/mapper/order_request_mapper.dart';
 
 import '../forms/driver_registration_form.dart';
+import '../models/active_client_request/active_client_request_model.dart';
+import '../models/active_request/active_request_model.dart';
 
 abstract class IOrderRequestsInteractor {
   Future<List<OrderRequestDomain>> getOrderRequests({
@@ -37,9 +39,19 @@ abstract class IOrderRequestsInteractor {
     required String orderRequestId,
   });
 
+  Future<void> rejectOrderByClientRequest({
+    required String orderRequestId,
+  });
+
   Future<ActiveRequestDomain> getActiveOrder();
 
+  Future<ActiveClientRequestModel> getMyClientActiveOrder();
+
   Future<List<ActiveRequestDomain>> getHistoryOrders({
+    required String type,
+  });
+
+  Future<List<ActiveRequestDomain>> getClientHistoryOrders({
     required String type,
   });
 }
@@ -119,4 +131,23 @@ class OrderRequestsInteractor extends IOrderRequestsInteractor {
       _restClient.rejectOrderRequest(
         orderRequestId: orderRequestId,
       );
+
+  Future<void> rejectOrderByClientRequest({
+    required String orderRequestId,
+  }) =>
+      _restClient.rejectOrderByClientRequest(
+        orderRequestId: orderRequestId,
+      );
+
+  @override
+  Future<ActiveClientRequestModel> getMyClientActiveOrder() async =>
+      await _restClient.getMyClientActiveOrder();
+
+  @override
+  Future<List<ActiveRequestDomain>> getClientHistoryOrders({
+    required String type,
+  }) async =>
+      activeRequestListMapper(await _restClient.getClientHistoryOrders(
+        type: type,
+      ));
 }

@@ -16,3 +16,6 @@ const String icTenge = '${_icons}tenge.svg';
 /// Order requests screen
 const String icWhatsapp = '${_icons}whatsapp.svg';
 const String icCall = '${_icons}call.svg';
+
+const String icTaxi = '${_icons}taxi.svg';
+const String icPlacemark = '${_icons}placemark.svg';

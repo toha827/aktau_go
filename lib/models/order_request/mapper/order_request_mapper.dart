@@ -18,7 +18,7 @@ OrderRequestDomain orderRequestMapper(
       driverId: model.props?.driverId,
       user_phone: model.props?.user_phone,
       orderType: model.props?.orderType,
-      orderstatus: model.props?.orderstatus,
+      orderStatus: model.props?.orderStatus,
       from: model.props?.from,
       to: model.props?.to,
       lat: model.props?.lat,

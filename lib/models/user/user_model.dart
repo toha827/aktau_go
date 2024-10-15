@@ -13,6 +13,9 @@ class UserModel {
     fromJson: _propsToString,
   )
   final String? id;
+  final String? firstName;
+  final String? lastName;
+  final String? phone;
   final UserPropsModel? props;
   final num? rating;
   final EarningsModel? earnings;
@@ -22,6 +25,9 @@ class UserModel {
   const UserModel({
     this.id,
     this.props,
+    this.firstName,
+    this.lastName,
+    this.phone,
     this.rating,
     this.earnings,
     this.orders,

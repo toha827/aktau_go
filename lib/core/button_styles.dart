@@ -36,6 +36,16 @@ final ButtonStyle primaryRounded9Opacity8 = ElevatedButton.styleFrom(
   disabledBackgroundColor: primaryColor.withOpacity(0.08),
 );
 
+final ButtonStyle primaryRounded8Padding = ElevatedButton.styleFrom(
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8),
+  ),
+  padding: const EdgeInsets.symmetric(vertical: 6),
+  elevation: 0,
+  backgroundColor: primaryColor,
+  disabledBackgroundColor: primaryColor.withOpacity(0.08),
+);
+
 final ButtonStyle primaryRounded12Opacity10 = ElevatedButton.styleFrom(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(12),
@@ -144,7 +154,7 @@ final ButtonStyle outlinedRounded12BorderGreyscale30 = OutlinedButton.styleFrom(
 );
 
 final ButtonStyle outlinedRounded100Greyscale10BorderGreyscale30 =
-OutlinedButton.styleFrom(
+    OutlinedButton.styleFrom(
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(100),
   ),
@@ -156,7 +166,7 @@ OutlinedButton.styleFrom(
 );
 
 final ButtonStyle outlinedRounded100Greyscale10BorderGreyscale30PaddingV10H12 =
-OutlinedButton.styleFrom(
+    OutlinedButton.styleFrom(
   padding: const EdgeInsets.symmetric(
     horizontal: 12,
     vertical: 10,

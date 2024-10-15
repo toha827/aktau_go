@@ -1,10 +1,12 @@
 import 'package:aktau_go/models/active_request/active_request_model.dart';
 import 'package:aktau_go/models/driver_registered_category/driver_registered_category_model.dart';
+import 'package:aktau_go/models/food/foods_response_model.dart';
 import 'package:aktau_go/models/user/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../models/active_client_request/active_client_request_model.dart';
 import '../../models/order_request/order_request_response_model.dart';
 import '../../models/sign_in/sign_in_by_phone_confirm_code_response_model.dart';
 import '../../models/sign_in/sign_in_by_phone_response_model.dart';
@@ -73,6 +75,12 @@ abstract class RestClient {
   });
 
   /// запрос профиля пользователя
+  @POST('v1/order-requests/cancel/{orderId}')
+  Future<void> rejectOrderByClientRequest({
+    @Path('orderId') required String orderRequestId,
+  });
+
+  /// запрос профиля пользователя
   @POST('v1/order-requests/start')
   Future<void> startOrderRequest({
     @Field('driverId') required String driverId,
@@ -91,8 +99,17 @@ abstract class RestClient {
   Future<ActiveRequestModel> getMyActiveOrder();
 
   /// запрос профиля пользователя
+  @GET('v1/order-requests/client-active-order')
+  Future<ActiveClientRequestModel> getMyClientActiveOrder();
+
+  /// запрос профиля пользователя
   @GET('v1/order-requests/history/{type}')
   Future<List<ActiveRequestModel>> getHistoryOrders({
+    @Path('type') required String type,
+  });
+  /// запрос профиля пользователя
+  @GET('v1/order-requests/client-history/{type}')
+  Future<List<ActiveRequestModel>> getClientHistoryOrders({
     @Path('type') required String type,
   });
 
@@ -110,4 +127,25 @@ abstract class RestClient {
   /// запрос профиля пользователя
   @GET('v1/order-requests/category/info')
   Future<List<DriverRegisteredCategoryModel>> driverRegisteredCategories();
+
+  /// запрос профиля пользователя
+  @POST('firebase/device')
+  Future<void> saveFirebaseDeviceToken({
+    @Field('token') required String deviceToken,
+  });
+
+  /// запрос профиля пользователя
+  @GET('v1/order-requests/menu/9')
+  Future<FoodsResponseModel> fetchFoods();
+
+  /// запрос профиля пользователя
+  @POST('v1/order-requests/create-order')
+  Future<void> createDriverOrder({
+    @Body() required Map<String, dynamic> body,
+  });
+  /// запрос профиля пользователя
+  @POST('v1/order-requests/make-review')
+  Future<void> makeReview({
+    @Body() required Map<String, dynamic> body,
+  });
 }

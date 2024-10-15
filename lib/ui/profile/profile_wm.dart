@@ -1,3 +1,4 @@
+import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/interactors/profile_interactor.dart';
 import 'package:aktau_go/interactors/session_interactor.dart';
 import 'package:aktau_go/router/router.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:seafarer/seafarer.dart';
 
 import '../../domains/user/user_domain.dart';
+import '../loading/loading_screen.dart';
 import './profile_model.dart';
 import './profile_screen.dart';
 
@@ -15,6 +17,7 @@ defaultProfileWMFactory(BuildContext context) => ProfileWM(
       ProfileModel(
         inject<SessionInteractor>(),
         inject<ProfileInteractor>(),
+        inject<MainNavigationInteractor>(),
       ),
     );
 
@@ -28,6 +31,8 @@ abstract class IProfileWM implements IWidgetModel {
   Future<void> navigateDriverRegistration();
 
   void logOut();
+
+  void toggleRole();
 }
 
 class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
@@ -77,5 +82,13 @@ class ProfileWM extends WidgetModel<ProfileScreen, ProfileModel>
       navigationType: NavigationType.pushAndRemoveUntil,
       removeUntilPredicate: (predicate) => false,
     );
+  }
+
+  @override
+  Future<void> toggleRole() async {
+    model.toggleRole();
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => LoadingScreen()));
+    model.changeTab(0);
   }
 }

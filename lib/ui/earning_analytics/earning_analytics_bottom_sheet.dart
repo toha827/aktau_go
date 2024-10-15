@@ -110,7 +110,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                               SvgPicture.asset(icTenge),
                               const SizedBox(width: 4),
                               Text(
-                                '${NumUtils.humanizeNumber((me?.today ?? 0) / (me?.ordersToday ?? 0))} ₸',
+                                '${NumUtils.humanizeNumber((me?.today ?? 0) / (me?.ordersToday ?? 0))}',
                                 textAlign: TextAlign.center,
                                 style: text400Size16Greyscale90,
                               ),
@@ -130,7 +130,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '${NumUtils.humanizeNumber(me?.ordersToday ?? 0)} ₸ поездок',
+                            '${NumUtils.humanizeNumber(me?.ordersToday ?? 0)} поездок',
                             textAlign: TextAlign.center,
                             style: text400Size12Greyscale90,
                           ),
@@ -217,7 +217,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                               SvgPicture.asset(icTenge),
                               const SizedBox(width: 4),
                               Text(
-                                '${NumUtils.humanizeNumber((me?.thisWeek ?? 0) / (me?.ordersThisWeek ?? 0))} ₸',
+                                '${NumUtils.humanizeNumber((me?.thisWeek ?? 0) / (me?.ordersThisWeek ?? 0))}',
                                 textAlign: TextAlign.center,
                                 style: text400Size16Greyscale90,
                               ),
@@ -237,7 +237,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '${NumUtils.humanizeNumber(me?.ordersThisWeek ?? 0)} ₸ поездок',
+                            '${NumUtils.humanizeNumber(me?.ordersThisWeek ?? 0)} поездок',
                             textAlign: TextAlign.center,
                             style: text400Size12Greyscale90,
                           ),
@@ -324,7 +324,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                               SvgPicture.asset(icTenge),
                               const SizedBox(width: 4),
                               Text(
-                                '${NumUtils.humanizeNumber((me?.thisMonth ?? 0) / (me?.ordersThisMonth ?? 0))} ₸',
+                                '${NumUtils.humanizeNumber((me?.thisMonth ?? 0) / (me?.ordersThisMonth ?? 0))}',
                                 textAlign: TextAlign.center,
                                 style: text400Size16Greyscale90,
                               ),
@@ -344,7 +344,7 @@ class EarningAnalyticsBottomSheet extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '${NumUtils.humanizeNumber(me?.ordersThisMonth ?? 0)} ₸ поездок',
+                            '${NumUtils.humanizeNumber(me?.ordersThisMonth ?? 0)} поездок',
                             textAlign: TextAlign.center,
                             style: text400Size12Greyscale90,
                           ),

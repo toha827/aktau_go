@@ -8,7 +8,9 @@ import 'package:aktau_go/interactors/profile_interactor.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../domains/driver_registered_category/driver_registered_category_domain.dart';
@@ -41,7 +43,13 @@ abstract class IOrdersWM implements IWidgetModel {
 
   StateNotifier<bool> get showNewOrders;
 
+  StateNotifier<bool> get isWebsocketConnected;
+
+  StateNotifier<LocationPermission> get locationPermission;
+
   StateNotifier<DriverType> get orderType;
+
+  ValueNotifier<bool> get statusController;
 
   void tabIndexChanged(int tabIndex);
 
@@ -50,15 +58,18 @@ abstract class IOrdersWM implements IWidgetModel {
   Future<void> onOrderRequestTap(OrderRequestDomain e);
 
   void tapNewOrders();
+
+  void requestLocationPermission();
 }
 
 class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
+    with WidgetsBindingObserver
     implements IOrdersWM {
   OrdersWM(
     OrdersModel model,
   ) : super(model);
 
-  late final IO.Socket newOrderSocket;
+  IO.Socket? newOrderSocket;
 
   @override
   final StateNotifier<int> tabIndex = StateNotifier(
@@ -66,7 +77,15 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   );
 
   @override
+  final ValueNotifier<bool> statusController = ValueNotifier(false);
+
+  @override
   final StateNotifier<bool> showNewOrders = StateNotifier(
+    initValue: false,
+  );
+
+  @override
+  final StateNotifier<bool> isWebsocketConnected = StateNotifier(
     initValue: false,
   );
 
@@ -103,13 +122,26 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     fetchOrderRequests();
     fetchUserProfile();
     fetchActiveOrder();
-
+    statusController.addListener(() {
+      if (statusController.value) {
+        initializeSocket();
+      } else {
+        disconnectWebsocket();
+      }
+    });
     // Timer.periodic(
     //   Duration(seconds: 10),
     //   (timer) {
     //     fetchOrderRequestsCount();
     //   },
     // );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    fetchOrderRequests();
+    initializeSocket();
   }
 
   void fetchDriverRegisteredCategories() async {
@@ -185,23 +217,42 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   @override
   final StateNotifier<ActiveRequestDomain> activeOrder = StateNotifier();
 
-  void fetchActiveOrder() async {
-    final response = await model.getActiveOrder();
-    await fetchUserProfile();
-    activeOrder.accept(response);
-
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => ActiveOrderBottomSheet(
-        me: me.value!,
-        activeOrder: activeOrder.value!,
-        onCancel: () {},
-      ),
-    );
+  void fetchActiveOrder({
+    bool openBottomSheet = true,
+  }) async {
+    try {
+      final response = await model.getActiveOrder();
+      await fetchUserProfile();
+      activeOrder.accept(response);
+      if (openBottomSheet) {
+        showModalBottomSheet(
+          context: context,
+          isDismissible: false,
+          enableDrag: false,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (context) => ActiveOrderBottomSheet(
+            me: me.value!,
+            activeOrder: activeOrder.value!,
+            activeOrderListener: activeOrder,
+            onCancel: () {},
+          ),
+        );
+      }
+    } on Exception catch (e) {
+      if (!openBottomSheet) {
+        Navigator.of(context).popUntil(
+          (predicate) => predicate.isFirst,
+        );
+        final snackBar = SnackBar(
+          content: Text(
+            'Заказ был отменен',
+          ),
+        );
+        fetchOrderRequests();
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
   }
 
   @override
@@ -221,20 +272,16 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
           'transports': ['websocket'],
           'autoConnect': false,
           'query': {
-            'userId': 'fb437deb-32db-4e4a-8c3e-3fb7c0f532e1',
-            // Замена параметром userId
+            'userId': me.value!.id,
           },
         },
       );
-      logger.w('https://taxi.aktau-go.kz/?userId=${me.value!.id}');
-      newOrderSocket.onConnect((_) {
-        logger.w(_);
-        logger.w('ASDASDASDADSASDASD ${{
-          "driverId": me.value!.id,
-          "latitude": location.latitude,
-          "longitude": location.longitude,
-        }}');
-        newOrderSocket.emit(
+
+      newOrderSocket?.onConnect((_) {
+        isWebsocketConnected.accept(true);
+        statusController.value = true;
+
+        newOrderSocket?.emit(
           'updateLocation',
           jsonEncode(
             {
@@ -245,14 +292,28 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
           ),
         );
       });
-      newOrderSocket.on('newOrder', (data) {
+
+      newOrderSocket?.on('orderRejected', (data) {
+        print('Received new order: $data');
+        // Обработка полученных данных
+        fetchActiveOrder(
+          openBottomSheet: false,
+        );
+        // showNewOrders.accept(true);
+      });
+
+      newOrderSocket?.on('newOrder', (data) {
         print('Received new order: $data');
         // Обработка полученных данных
         fetchOrderRequests();
         // showNewOrders.accept(true);
       });
-      newOrderSocket.onDisconnect((_) => logger.e('disconnect'));
-      newOrderSocket.connect();
+      newOrderSocket?.onDisconnect((_) {
+        isWebsocketConnected.accept(false);
+        statusController.value = false;
+        initializeSocket();
+      });
+      newOrderSocket?.connect();
 
       Geolocator.getPositionStream(
         locationSettings: LocationSettings(
@@ -261,7 +322,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         ),
       ).listen(
         (position) {
-          newOrderSocket.emit(
+          newOrderSocket?.emit(
             'updateLocation',
             jsonEncode(
               {
@@ -278,6 +339,10 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     }
   }
 
+  Future<void> disconnectWebsocket() async {
+    newOrderSocket?.disconnect();
+  }
+
   Future<void> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -292,6 +357,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     }
 
     permission = await Geolocator.checkPermission();
+    locationPermission.accept(permission);
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -306,6 +372,35 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
+
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
+  @override
+  final StateNotifier<LocationPermission> locationPermission = StateNotifier();
+
+  @override
+  Future<void> requestLocationPermission() async {
+    var permission = await Geolocator.checkPermission();
+    locationPermission.accept(permission);
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+
+      locationPermission.accept(permission);
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      openAppSettings();
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }

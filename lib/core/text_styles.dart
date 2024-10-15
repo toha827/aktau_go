@@ -50,6 +50,11 @@ const TextStyle text500Size24Greyscale90 = TextStyle(
   fontSize: 24,
   fontWeight: FontWeight.w500,
 );
+const TextStyle text500Size20Greyscale90 = TextStyle(
+  color: greyscale90,
+  fontSize: 20,
+  fontWeight: FontWeight.w500,
+);
 
 const TextStyle text400Size16Greyscale90 = TextStyle(
   color: greyscale90,
@@ -75,6 +80,11 @@ const TextStyle text400Size12Greyscale60 = TextStyle(
   fontSize: 12,
   fontWeight: FontWeight.w400,
 );
+const TextStyle text400Size24Greyscale60 = TextStyle(
+  color: greyscale60,
+  fontSize: 24,
+  fontWeight: FontWeight.w400,
+);
 const TextStyle text400Size16Greyscale60 = TextStyle(
   color: greyscale60,
   fontSize: 16,
@@ -97,5 +107,15 @@ const TextStyle text400Size12Greyscale50 = TextStyle(
 const TextStyle text400Size16Greyscale30 = TextStyle(
   color: greyscale30,
   fontSize: 16,
+  fontWeight: FontWeight.w400,
+);
+const TextStyle text400Size12Greyscale30 = TextStyle(
+  color: greyscale30,
+  fontSize: 12,
+  fontWeight: FontWeight.w400,
+);
+const TextStyle text400Size12Error = TextStyle(
+  color: Colors.red,
+  fontSize: 12,
   fontWeight: FontWeight.w400,
 );

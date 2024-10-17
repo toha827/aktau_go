@@ -9,6 +9,7 @@ ActiveRequestDomain activeRequestMapper(
   ActiveRequestModel model,
 ) =>
     ActiveRequestDomain(
+      driver: userMapper(model.driver ?? UserModel()),
       whatsappUser: userMapper(model.whatsappUser ?? UserModel()),
       orderRequest: orderRequestMapper(
         model.orderRequest!,

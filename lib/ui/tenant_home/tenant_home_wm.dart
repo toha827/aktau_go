@@ -9,6 +9,7 @@ import 'package:aktau_go/utils/text_editing_controller.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart' as geoLocator;
@@ -44,9 +45,11 @@ defaultTenantHomeWMFactory(BuildContext context) => TenantHomeWM(
     );
 
 abstract class ITenantHomeWM implements IWidgetModel {
-  MapboxMap get mapboxMapController;
+  MapController get mapboxMapController;
 
   StateNotifier<LatLng> get userLocation;
+
+  StateNotifier<LatLng> get driverLocation;
 
   StateNotifier<geoLocator.LocationPermission> get locationPermission;
 
@@ -62,6 +65,10 @@ abstract class ITenantHomeWM implements IWidgetModel {
 
   StateNotifier<UserDomain> get me;
 
+  StateNotifier<double> get draggableMaxChildSize;
+
+  DraggableScrollableController get draggableScrollableController;
+
   Future<void> determineLocationPermission();
 
   void onMapCreated(MapboxMap controller);
@@ -71,6 +78,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
   Future<void> onSubmit(DriverOrderForm form, DriverType taxi);
 
   void cancelActiveClientOrder();
+
+  void getMyLocation();
 }
 
 class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
@@ -91,7 +100,15 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   );
 
   @override
-  late MapboxMap mapboxMapController;
+  final StateNotifier<double> draggableMaxChildSize = StateNotifier(
+    initValue: 0.6,
+  );
+
+  @override
+  final StateNotifier<LatLng> driverLocation = StateNotifier();
+
+  @override
+  late final MapController mapboxMapController = MapController();
 
   @override
   late final TabController tabController = TabController(
@@ -135,6 +152,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     fetchUserProfile();
     fetchFoods();
     fetchActiveOrder();
+    getMyLocation();
   }
 
   @override
@@ -175,7 +193,6 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   Future<void> onMapCreated(MapboxMap controller) async {
-    mapboxMapController = controller;
     determineLocationPermission();
 
     var location = await geoLocator.Geolocator.getCurrentPosition();
@@ -187,25 +204,32 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       ),
     );
 
-    mapboxMapController.flyTo(
-      CameraOptions(
-        center: Point(
-          coordinates: Position(
-            location.longitude,
-            location.latitude,
-          ),
-        ),
-        zoom: 17,
-        bearing: 180,
-        pitch: 30,
-      ),
-      MapAnimationOptions(duration: 2000, startDelay: 0),
-    );
+    // mapboxMapController.value?.flyTo(
+    //   CameraOptions(
+    //     center: Point(
+    //       coordinates: Position(
+    //         location.longitude,
+    //         location.latitude,
+    //       ),
+    //     ),
+    //     zoom: 17,
+    //     bearing: 180,
+    //     pitch: 30,
+    //   ),
+    //   MapAnimationOptions(duration: 2000, startDelay: 0),
+    // );
   }
 
   @override
   void tabIndexChanged(int newTabIndex) {
     currentTab.accept(newTabIndex);
+    if (newTabIndex == 1) {
+      draggableMaxChildSize.accept(0.9);
+      draggableScrollableController.jumpTo(0.9);
+    } else {
+      draggableMaxChildSize.accept(0.6);
+      draggableScrollableController.jumpTo(0.6);
+    }
     tabController.animateTo(newTabIndex);
   }
 
@@ -290,7 +314,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       });
 
       newOrderSocket?.on('rideStarted', (data) {
-        print('Received new order: $data');
+        print('rideStarted: $data');
         // Обработка полученных данных
         // fetchActiveOrder(
         //   openBottomSheet: false,
@@ -321,12 +345,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
       newOrderSocket?.on('driverLocation', (data) {
         print('Received new order: $data');
-        // Обработка полученных данных
-        // fetchActiveOrder(
-        //   openBottomSheet: false,
-        // );
-        // showNewOrders.accept(true);
-        fetchActiveOrder();
+        driverLocation.accept(LatLng(data['lat'], data['lng']));
+
+        mapboxMapController.move(LatLng(data['lat'], data['lng']), 17);
+        // fetchActiveOrder();
       });
 
       newOrderSocket?.onDisconnect((_) {
@@ -488,5 +510,29 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       orderRequestId: activeOrder.value!.order!.id!,
     );
     fetchActiveOrder();
+  }
+
+  @override
+  final DraggableScrollableController draggableScrollableController =
+      DraggableScrollableController();
+
+  @override
+  Future<void> getMyLocation() async {
+    determineLocationPermission();
+    var location = await geoLocator.Geolocator.getCurrentPosition();
+
+    userLocation.accept(
+      LatLng(
+        location.latitude,
+        location.longitude,
+      ),
+    );
+
+    mapboxMapController.move(
+        LatLng(
+          location.latitude,
+          location.longitude,
+        ),
+        17);
   }
 }

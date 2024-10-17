@@ -129,9 +129,9 @@ abstract class RestClient {
   Future<List<DriverRegisteredCategoryModel>> driverRegisteredCategories();
 
   /// запрос профиля пользователя
-  @POST('firebase/device')
+  @POST('v1/user/device')
   Future<void> saveFirebaseDeviceToken({
-    @Field('token') required String deviceToken,
+    @Field('device') required String deviceToken,
   });
 
   /// запрос профиля пользователя

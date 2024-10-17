@@ -561,7 +561,7 @@ class _RestClient implements RestClient {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = {'token': deviceToken};
+    final _data = {'device': deviceToken};
     await _dio.fetch<void>(_setStreamType<void>(Options(
       method: 'POST',
       headers: _headers,
@@ -569,7 +569,7 @@ class _RestClient implements RestClient {
     )
         .compose(
           _dio.options,
-          'firebase/device',
+          'v1/user/device',
           queryParameters: queryParameters,
           data: _data,
         )

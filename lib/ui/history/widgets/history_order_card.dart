@@ -66,12 +66,12 @@ class HistoryOrderCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${orderRequest.whatsappUser?.name ?? ''}',
+                              '${(orderRequest.driver?.id ?? '').isNotEmpty ?  '${orderRequest.driver?.firstName} ${orderRequest.driver?.lastName}' : orderRequest.whatsappUser?.fullName ?? ''}',
                               textAlign: TextAlign.center,
                               style: text400Size16Black,
                             ),
                             Text(
-                              'Клиент',
+                              (orderRequest.driver?.id ?? '').isNotEmpty ? 'Водитель' :'Клиент',
                               textAlign: TextAlign.center,
                               style: text400Size12Greyscale50,
                             ),

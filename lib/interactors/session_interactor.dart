@@ -62,16 +62,21 @@ class SessionInteractor extends ISessionInteractor {
   void setAccessToken(String value) {
     sharedPreferences.setString(ACCESS_TOKEN, value);
     toggleRole(sharedPreferences.getString(SELECTED_ROLE) ?? 'TENANT');
-    FirebaseMessaging.instance.onTokenRefresh.listen((value) {
-      _restClient.saveFirebaseDeviceToken(
-        deviceToken: value,
-      );
-    });
   }
 
   @override
   void setRefreshToken(String value) {
     sharedPreferences.setString(REFRESH_TOKEN, value);
+    FirebaseMessaging.instance.getToken().then((value) {
+      _restClient.saveFirebaseDeviceToken(
+        deviceToken: value ?? '',
+      );
+    });
+    FirebaseMessaging.instance.onTokenRefresh.listen((value) {
+      _restClient.saveFirebaseDeviceToken(
+        deviceToken: value,
+      );
+    });
   }
 
   @override

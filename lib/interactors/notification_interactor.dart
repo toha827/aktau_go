@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:aktau_go/interactors/common/rest_client.dart';
+import 'package:aktau_go/utils/utils.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -65,6 +67,15 @@ class NotificationInteractor extends INotificationInteractor {
       badge: true,
       sound: true,
     );
+
+    FirebaseMessaging.instance.requestPermission(
+      provisional: true,
+    );
+    FirebaseMessaging.instance.getToken().then((value) {
+      inject<RestClient>().saveFirebaseDeviceToken(
+        deviceToken: value ?? '',
+      );
+    });
 
     /// Initialize local Notifications
     _initializeLocalNotification();

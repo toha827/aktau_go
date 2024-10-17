@@ -1,18 +1,23 @@
+import 'package:aktau_go/core/images.dart';
 import 'package:aktau_go/domains/food/food_category_domain.dart';
 import 'package:aktau_go/domains/food/food_domain.dart';
 import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_food_view.dart';
 import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_order_view.dart';
 import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_tab_view.dart';
+import 'package:aktau_go/ui/widgets/primary_bottom_sheet.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import '../../core/colors.dart';
 import '../../domains/user/user_domain.dart';
 import '../../forms/driver_registration_form.dart';
 import '../../models/active_client_request/active_client_request_model.dart';
+import '../orders/widgets/order_request_bottom_sheet.dart';
 import './tenant_home_wm.dart';
 import 'widgets/active_client_order_bottom_sheet.dart';
 
@@ -25,28 +30,103 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
 
   @override
   Widget build(ITenantHomeWM wm) {
-    return StateNotifierBuilder(
-        listenableState: wm.userLocation,
+    return DoubleSourceBuilder(
+        firstSource: wm.userLocation,
+        secondSource: wm.driverLocation,
         builder: (
           context,
           LatLng? userLocation,
+          LatLng? driverLocation,
         ) {
           return Scaffold(
             body: Stack(
               children: [
-                MapWidget(
-                  onMapCreated: wm.onMapCreated,
-                  styleUri: MapboxStyles.STANDARD,
-                  cameraOptions: CameraOptions(
-                    center: Point(
-                      coordinates: Position(
-                        userLocation!.longitude,
-                        userLocation!.latitude,
+                Positioned.fill(
+                  child: Stack(
+                    children: [
+                      FlutterMap(
+                        mapController: wm.mapboxMapController,
+                        options: MapOptions(
+                          initialCenter: LatLng(
+                            userLocation!.latitude.toDouble(),
+                            userLocation!.longitude.toDouble(),
+                          ),
+                        ),
+                        children: [
+                          openStreetMapTileLayer,
+                          MarkerLayer(
+                            // rotate: counterRotate,
+                            markers: [
+                              if (userLocation != null)
+                                Marker(
+                                  point: LatLng(
+                                    userLocation.latitude.toDouble(),
+                                    userLocation.longitude.toDouble(),
+                                  ),
+                                  width: 16,
+                                  height: 16,
+                                  alignment: Alignment.centerLeft,
+                                  child: Icon(
+                                    Icons.location_on_rounded,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              if (driverLocation != null)
+                                Marker(
+                                  point: LatLng(
+                                    driverLocation.latitude.toDouble(),
+                                    driverLocation.longitude.toDouble(),
+                                  ),
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.centerLeft,
+                                  child: SvgPicture.asset(
+                                    icTaxi,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              // Marker(
+                              //   point:
+                              //       LatLng(47.18664724067855, -1.5436768515939427),
+                              //   width: 64,
+                              //   height: 64,
+                              //   alignment: Alignment.centerRight,
+                              //   child: ColoredBox(
+                              //     color: Colors.pink,
+                              //     child: Align(
+                              //       alignment: Alignment.centerLeft,
+                              //       child: Text('<--'),
+                              //     ),
+                              //   ),
+                              // ),
+                              // Marker(
+                              //   point:
+                              //       LatLng(47.18664724067855, -1.5436768515939427),
+                              //   rotate: false,
+                              //   child: ColoredBox(color: Colors.black),
+                              // ),
+                            ],
+                          ),
+                          CurrentLocationLayer(),
+                        ],
                       ),
-                    ),
-                    zoom: 12,
-                    bearing: 0,
-                    pitch: 0,
+                      Positioned(
+                        top: 32,
+                        right: 32,
+                        child: InkWell(
+                          onTap: wm.getMyLocation,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: Icon(Icons.location_searching),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 Positioned(
@@ -64,153 +144,183 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                         ActiveClientRequestModel? activeOrder,
                         UserDomain? me,
                       ) {
-                        return DraggableScrollableSheet(
-                          minChildSize: 0.2,
-                          maxChildSize: activeOrder != null ? 0.5 : 0.95,
-                          expand: false,
-                          builder: (
-                            context,
-                            scrollController,
-                          ) {
-                            return TripleSourceBuilder(
-                              firstSource: wm.currentTab,
-                              secondSource: wm.activeOrder,
-                              thirdSource: wm.me,
-                              builder: (
-                                context,
-                                int? currentTab,
-                                ActiveClientRequestModel? activeOrder,
-                                UserDomain? me,
-                              ) {
-                                if (activeOrder != null) {
+                        return StateNotifierBuilder(
+                            listenableState: wm.draggableMaxChildSize,
+                            builder: (context, double? draggableMaxChildSize) {
+                              return DraggableScrollableSheet(
+                                initialChildSize: draggableMaxChildSize!,
+                                controller: wm.draggableScrollableController,
+                                minChildSize: 0.3,
+                                maxChildSize: draggableMaxChildSize,
+                                snap: true,
+                                expand: false,
+                                builder: (
+                                  context,
+                                  scrollController,
+                                ) {
                                   return Container(
                                     color: Colors.white,
                                     child: SingleChildScrollView(
                                       controller: scrollController,
-                                      child: ActiveClientOrderBottomSheet(
-                                        me: me!,
-                                        activeOrder: activeOrder,
-                                        activeOrderListener: wm.activeOrder,
-                                        onCancel: wm.cancelActiveClientOrder,
+                                      child: TripleSourceBuilder(
+                                        firstSource: wm.currentTab,
+                                        secondSource: wm.activeOrder,
+                                        thirdSource: wm.me,
+                                        builder: (
+                                          context,
+                                          int? currentTab,
+                                          ActiveClientRequestModel? activeOrder,
+                                          UserDomain? me,
+                                        ) {
+                                          if (activeOrder != null) {
+                                            return Container(
+                                              color: Colors.white,
+                                              child: ActiveClientOrderBottomSheet(
+                                                me: me!,
+                                                activeOrder: activeOrder,
+                                                activeOrderListener:
+                                                    wm.activeOrder,
+                                                onCancel:
+                                                    wm.cancelActiveClientOrder,
+                                              ),
+                                            );
+                                          }
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 16,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(20),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  width: 38,
+                                                  height: 4,
+                                                  decoration: BoxDecoration(
+                                                    color: greyscale30,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            1.40),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                TabBar(
+                                                  controller: wm.tabController,
+                                                  isScrollable: true,
+                                                  padding:
+                                                      EdgeInsets.only(left: 16),
+                                                  tabAlignment:
+                                                      TabAlignment.start,
+                                                  dividerColor:
+                                                      Colors.transparent,
+                                                  indicatorColor:
+                                                      Colors.transparent,
+                                                  enableFeedback: false,
+                                                  labelPadding:
+                                                      EdgeInsets.only(right: 8),
+                                                  tabs: [
+                                                    ...[
+                                                      DriverType.TAXI,
+                                                      "FOOD",
+                                                      DriverType.CARGO,
+                                                      DriverType.INTERCITY_TAXI,
+                                                    ].asMap().entries.map(
+                                                          (e) => InkWell(
+                                                            onTap: () => wm
+                                                                .tabIndexChanged(
+                                                                    e.key),
+                                                            child:
+                                                                TenantHomeTabView(
+                                                              isActive:
+                                                                  currentTab ==
+                                                                      e.key,
+                                                              label: e.value
+                                                                      is DriverType
+                                                                  ? (e.value
+                                                                          as DriverType)
+                                                                      .value!
+                                                                  : 'Eда',
+                                                              asset: e.value
+                                                                      is DriverType
+                                                                  ? (e.value
+                                                                          as DriverType)
+                                                                      .asset!
+                                                                  : 'assets/icons/food.svg',
+                                                            ),
+                                                          ),
+                                                        )
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 24),
+                                                if (currentTab == 0)
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.TAXI),
+                                                  ),
+                                                if (currentTab == 1)
+                                                  EntityStateNotifierBuilder(
+                                                    listenableEntityState:
+                                                        wm.foods,
+                                                    builder: (
+                                                      context,
+                                                      List<FoodDomain>? foods,
+                                                    ) {
+                                                      return StateNotifierBuilder(
+                                                        listenableState:
+                                                            wm.foodCategories,
+                                                        builder: (
+                                                          context,
+                                                          List<FoodCategoryDomain>?
+                                                              foodCategories,
+                                                        ) {
+                                                          return TenantHomeFoodsView(
+                                                            scrollController:
+                                                                scrollController,
+                                                            foods: foods ?? [],
+                                                            foodCategories:
+                                                                foodCategories ??
+                                                                    [],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                if (currentTab == 2)
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.CARGO),
+                                                  ),
+                                                if (currentTab == 3)
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(
+                                                            form,
+                                                            DriverType
+                                                                .INTERCITY_TAXI),
+                                                  ),
+                                              ],
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ),
                                   );
-                                }
-                                return SingleChildScrollView(
-                                  controller: scrollController,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(20),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 38,
-                                          height: 4,
-                                          decoration: BoxDecoration(
-                                            color: greyscale30,
-                                            borderRadius:
-                                                BorderRadius.circular(1.40),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        TabBar(
-                                          controller: wm.tabController,
-                                          isScrollable: true,
-                                          padding: EdgeInsets.only(left: 16),
-                                          tabAlignment: TabAlignment.start,
-                                          dividerColor: Colors.transparent,
-                                          indicatorColor: Colors.transparent,
-                                          enableFeedback: false,
-                                          labelPadding: EdgeInsets.only(right: 8),
-                                          tabs: [
-                                            ...[
-                                              DriverType.TAXI,
-                                              "FOOD",
-                                              DriverType.CARGO,
-                                              DriverType.INTERCITY_TAXI,
-                                            ].asMap().entries.map(
-                                                  (e) => InkWell(
-                                                    onTap: () =>
-                                                        wm.tabIndexChanged(e.key),
-                                                    child: TenantHomeTabView(
-                                                      isActive:
-                                                          currentTab == e.key,
-                                                      label: e.value is DriverType
-                                                          ? (e.value
-                                                                  as DriverType)
-                                                              .value!
-                                                          : 'Eда',
-                                                      asset: e.value is DriverType
-                                                          ? (e.value
-                                                                  as DriverType)
-                                                              .asset!
-                                                          : 'assets/icons/food.svg',
-                                                    ),
-                                                  ),
-                                                )
-                                          ],
-                                        ),
-                                        const SizedBox(height: 24),
-                                        if (currentTab == 0)
-                                          TenantHomeCreateOrderView(
-                                            scrollController: scrollController,
-                                            onSubmit: (form) => wm.onSubmit(
-                                                form, DriverType.TAXI),
-                                          ),
-                                        if (currentTab == 1)
-                                          EntityStateNotifierBuilder(
-                                            listenableEntityState: wm.foods,
-                                            builder: (
-                                              context,
-                                              List<FoodDomain>? foods,
-                                            ) {
-                                              return StateNotifierBuilder(
-                                                listenableState:
-                                                    wm.foodCategories,
-                                                builder: (
-                                                  context,
-                                                  List<FoodCategoryDomain>?
-                                                      foodCategories,
-                                                ) {
-                                                  return TenantHomeFoodsView(
-                                                    scrollController:
-                                                        scrollController,
-                                                    foods: foods ?? [],
-                                                    foodCategories:
-                                                        foodCategories ?? [],
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        if (currentTab == 2)
-                                          TenantHomeCreateOrderView(
-                                            scrollController: scrollController,
-                                            onSubmit: (form) => wm.onSubmit(
-                                                form, DriverType.CARGO),
-                                          ),
-                                        if (currentTab == 3)
-                                          TenantHomeCreateOrderView(
-                                            scrollController: scrollController,
-                                            onSubmit: (form) => wm.onSubmit(
-                                                form, DriverType.INTERCITY_TAXI),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        );
+                                },
+                              );
+                            });
                       }),
                 )
               ],

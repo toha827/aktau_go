@@ -86,7 +86,7 @@ class OtpScreen extends ElementaryWidget<IOtpWM> {
                         SizedBox(
                           width: double.infinity,
                           child: Text(
-                            'В WhatsApp на номер ${phoneNumber} был отправлен код',
+                            'На номер ${phoneNumber} был отправлен код',
                             style: text400Size12Greyscale50,
                           ),
                         ),

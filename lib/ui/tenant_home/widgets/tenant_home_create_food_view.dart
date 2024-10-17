@@ -97,7 +97,7 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                       for (int j = 0; j < widget.foodCategories.length; j++)
                         ListView(
                           padding: EdgeInsets.only(top: 16),
-                          controller: widget.scrollController,
+                          // controller: widget.scrollController,
                           children: [
                             for (int foodIndex = 0;
                                 foodIndex < widget.foods.length;
@@ -121,8 +121,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                           Container(
                                             width: 108,
                                             height: 108,
-                                            margin:
-                                                const EdgeInsets.only(right: 16),
+                                            margin: const EdgeInsets.only(
+                                                right: 16),
                                             clipBehavior: Clip.hardEdge,
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -141,7 +141,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                   margin: const EdgeInsets.only(
                                                       bottom: 4),
                                                   child: Text(
-                                                    widget.foods[foodIndex].name,
+                                                    widget
+                                                        .foods[foodIndex].name,
                                                     style:
                                                         text400Size16Greyscale90,
                                                   ),
@@ -198,8 +199,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                                   primaryRounded8Padding,
                                                               child: Icon(
                                                                 Icons.remove,
-                                                                color:
-                                                                    Colors.white,
+                                                                color: Colors
+                                                                    .white,
                                                               ),
                                                             ),
                                                           ),
@@ -235,11 +236,10 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                                     selectedIndex] = {
                                                                   ...selectedProductQuantity[
                                                                       selectedIndex],
-                                                                  'quantity': (selectedProductQuantity[selectedIndex]
-                                                                              [
-                                                                              'quantity']
-                                                                          as int) +
-                                                                      1,
+                                                                  'quantity':
+                                                                      (selectedProductQuantity[selectedIndex]['quantity']
+                                                                              as int) +
+                                                                          1,
                                                                 };
                                                               }
                                                               setState(() {});
@@ -248,7 +248,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                                 primaryRounded8Padding,
                                                             child: Icon(
                                                               Icons.add,
-                                                              color: Colors.white,
+                                                              color:
+                                                                  Colors.white,
                                                             ),
                                                           ),
                                                         ),

@@ -122,11 +122,11 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     fetchOrderRequests();
     fetchUserProfile();
     fetchActiveOrder();
-    statusController.addListener(() {
+    statusController.addListener(() async {
       if (statusController.value) {
-        initializeSocket();
+        await initializeSocket();
       } else {
-        disconnectWebsocket();
+        await disconnectWebsocket();
       }
     });
     // Timer.periodic(

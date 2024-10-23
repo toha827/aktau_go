@@ -383,6 +383,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                   ),
                                                 if (currentTab == 3)
                                                   TenantHomeCreateOrderView(
+                                                    isIntercity: true,
                                                     scrollController:
                                                         scrollController,
                                                     onSubmit: (form) =>

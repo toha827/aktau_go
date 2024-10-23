@@ -216,6 +216,13 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       ),
     );
 
+    mapboxMapController.move(
+        LatLng(
+          location.latitude,
+          location.longitude,
+        ),
+        17);
+
     // mapboxMapController.value?.flyTo(
     //   CameraOptions(
     //     center: Point(
@@ -540,6 +547,14 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       ),
     );
 
+    geoLocator.Geolocator.getPositionStream().listen((data) {
+      mapboxMapController.move(
+          LatLng(
+            data.latitude,
+            data.longitude,
+          ),
+          17);
+    });
     mapboxMapController.move(
         LatLng(
           location.latitude,

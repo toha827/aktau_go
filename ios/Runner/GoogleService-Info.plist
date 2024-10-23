@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>kz.aktau.go.aktauGo</string>
+	<string>kz.aday.go</string>
 	<key>PROJECT_ID</key>
 	<string>aktau-go</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:656207473991:ios:9dac51bec32cee3fcd3062</string>
+	<string>1:656207473991:ios:596f26cef170a645cd3062</string>
 </dict>
 </plist>

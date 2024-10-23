@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:656207473991:android:0c20006b5676e57bcd3062",
+        "mobilesdk_app_id": "1:656207473991:android:db969aebb2cdd7f6cd3062",
         "android_client_info": {
-          "package_name": "kz.aktau.go.aktau_go"
+          "package_name": "kz.aday.go"
         }
       },
       "oauth_client": [],

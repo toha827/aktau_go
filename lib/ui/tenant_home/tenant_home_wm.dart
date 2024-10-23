@@ -15,6 +15,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart' as geoLocator;
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../core/colors.dart';
@@ -69,7 +70,9 @@ abstract class ITenantHomeWM implements IWidgetModel {
 
   DraggableScrollableController get draggableScrollableController;
 
-  Future<void> determineLocationPermission();
+  Future<void> determineLocationPermission({
+    bool force = false,
+  });
 
   void onMapCreated(MapboxMap controller);
 
@@ -156,7 +159,9 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   }
 
   @override
-  Future<void> determineLocationPermission() async {
+  Future<void> determineLocationPermission({
+    bool force = false,
+  }) async {
     bool serviceEnabled;
     geoLocator.LocationPermission permission;
 
@@ -179,13 +184,20 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
+        if (force) {
+          await openAppSettings();
+          determineLocationPermission();
+        }
         return Future.error('Location permissions are denied');
       }
     }
 
     if (permission == geoLocator.LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-
+      if (force) {
+        openAppSettings();
+        determineLocationPermission();
+      }
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }

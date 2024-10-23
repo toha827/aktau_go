@@ -5,15 +5,18 @@ import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_food_view.dar
 import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_order_view.dart';
 import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_tab_view.dart';
 import 'package:aktau_go/ui/widgets/primary_bottom_sheet.dart';
+import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/colors.dart';
+import '../../core/text_styles.dart';
 import '../../domains/user/user_domain.dart';
 import '../../forms/driver_registration_form.dart';
 import '../../models/active_client_request/active_client_request_model.dart';
@@ -144,9 +147,11 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                         ActiveClientRequestModel? activeOrder,
                         UserDomain? me,
                       ) {
-                        return StateNotifierBuilder(
-                            listenableState: wm.draggableMaxChildSize,
-                            builder: (context, double? draggableMaxChildSize) {
+                        return DoubleSourceBuilder(
+                            firstSource: wm.draggableMaxChildSize,
+                            secondSource: wm.locationPermission,
+                            builder: (context, double? draggableMaxChildSize,
+                                LocationPermission? locationPermission) {
                               return DraggableScrollableSheet(
                                 initialChildSize: draggableMaxChildSize!,
                                 controller: wm.draggableScrollableController,
@@ -172,10 +177,84 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                           ActiveClientRequestModel? activeOrder,
                                           UserDomain? me,
                                         ) {
+                                          if (![
+                                            LocationPermission.always,
+                                            LocationPermission.whileInUse
+                                          ].contains(locationPermission)) {
+                                            return Container(
+                                              color: Colors.white,
+                                              child: PopScope(
+                                                canPop: false,
+                                                child: PrimaryBottomSheet(
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                    vertical: 8,
+                                                    horizontal: 16,
+                                                  ),
+                                                  child: SizedBox(
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Center(
+                                                          child: Container(
+                                                            width: 38,
+                                                            height: 4,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color:
+                                                                  greyscale30,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          1.4),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 24,
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              double.infinity,
+                                                          child: Text(
+                                                            'Для заказа пожалуйста поделитесь геолокацией',
+                                                            style:
+                                                                text400Size24Greyscale60,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 24,
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              double.infinity,
+                                                          child: PrimaryButton
+                                                              .primary(
+                                                            onPressed: () => wm
+                                                                .determineLocationPermission(
+                                                              force: true,
+                                                            ),
+                                                            text:
+                                                                'Включить геолокацию',
+                                                            textStyle:
+                                                                text400Size16White,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+
                                           if (activeOrder != null) {
                                             return Container(
                                               color: Colors.white,
-                                              child: ActiveClientOrderBottomSheet(
+                                              child:
+                                                  ActiveClientOrderBottomSheet(
                                                 me: me!,
                                                 activeOrder: activeOrder,
                                                 activeOrderListener:
@@ -191,7 +270,8 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius: BorderRadius.vertical(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
                                                 top: Radius.circular(20),
                                               ),
                                             ),

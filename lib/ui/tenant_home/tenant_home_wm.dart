@@ -563,6 +563,5 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
           ),
           17);
     });
-
   }
 }

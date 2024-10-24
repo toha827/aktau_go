@@ -378,6 +378,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                               style: text400Size10Greyscale60,
                                             ),
                                             Container(
+                                              width: double.infinity,
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 mainAxisAlignment:
@@ -389,14 +390,16 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                                     'assets/icons/placemark.svg',
                                                   ),
                                                   const SizedBox(width: 4),
-                                                  Text(
-                                                    widget
-                                                            .activeOrder
-                                                            .orderRequest
-                                                            ?.from ??
-                                                        '',
-                                                    textAlign: TextAlign.center,
-                                                    style: text400Size16Black,
+                                                  Expanded(
+                                                    child: Text(
+                                                      widget
+                                                              .activeOrder
+                                                              .orderRequest
+                                                              ?.from ??
+                                                          '',
+                                                      textAlign: TextAlign.left,
+                                                      style: text400Size16Black,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -429,12 +432,14 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                                     'assets/icons/placemark.svg',
                                                   ),
                                                   const SizedBox(width: 4),
-                                                  Text(
-                                                    widget.activeOrder
-                                                            .orderRequest?.to ??
-                                                        '',
-                                                    textAlign: TextAlign.center,
-                                                    style: text400Size16Black,
+                                                  Expanded(
+                                                    child: Text(
+                                                      widget.activeOrder
+                                                              .orderRequest?.to ??
+                                                          '',
+                                                      textAlign: TextAlign.left,
+                                                      style: text400Size16Black,
+                                                    ),
                                                   ),
                                                 ],
                                               ),

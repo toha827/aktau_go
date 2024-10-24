@@ -68,7 +68,7 @@ class OrderRequestCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${orderRequest.user?.name ?? 'Не указан'}',
+                              '${orderRequest.user?.firstName ?? ''} ${orderRequest.user?.lastName ?? ''}',
                               textAlign: TextAlign.center,
                               style: text400Size16Black,
                             ),

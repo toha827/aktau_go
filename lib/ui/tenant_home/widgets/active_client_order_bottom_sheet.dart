@@ -334,13 +334,16 @@ class _ActiveClientOrderBottomSheetState
                                                       'assets/icons/placemark.svg',
                                                     ),
                                                     const SizedBox(width: 4),
-                                                    Text(
-                                                      widget.activeOrder.order
-                                                              ?.from ??
-                                                          '',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: text400Size16Black,
+                                                    Expanded(
+                                                      child: Text(
+                                                        widget.activeOrder.order
+                                                                ?.from ??
+                                                            '',
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                        style:
+                                                            text400Size16Black,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -374,13 +377,14 @@ class _ActiveClientOrderBottomSheetState
                                                       'assets/icons/placemark.svg',
                                                     ),
                                                     const SizedBox(width: 4),
-                                                    Text(
-                                                      widget.activeOrder.order
-                                                              ?.to ??
-                                                          '',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: text400Size16Black,
+                                                    Expanded(
+                                                      child: Text(
+                                                        widget.activeOrder.order
+                                                                ?.to ??
+                                                            '',
+                                                        textAlign: TextAlign.left,
+                                                        style: text400Size16Black,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

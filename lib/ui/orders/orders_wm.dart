@@ -153,10 +153,14 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   }
 
   Future<void> fetchDriverRegisteredCategories() async {
-    final response =
-        await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
+    try {
+      final response =
+          await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
 
-    driverRegisteredCategories.accept(response);
+      driverRegisteredCategories.accept(response);
+    } on Exception catch (e) {
+      logger.e(e);
+    }
   }
 
   @override
@@ -215,11 +219,15 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   }
 
   Future<void> fetchUserProfile() async {
-    final response = await model.getUserProfile();
+    try {
+      final response = await model.getUserProfile();
 
-    me.accept(response);
+      me.accept(response);
 
-    initializeSocket();
+      await initializeSocket();
+    } on Exception catch (e) {
+      logger.e(e);
+    }
   }
 
   @override
@@ -248,6 +256,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         );
       }
     } on Exception catch (e) {
+      logger.e(e);
       if (!openBottomSheet) {
         Navigator.of(context).popUntil(
           (predicate) => predicate.isFirst,
@@ -277,14 +286,17 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         <String, dynamic>{
           'transports': ['websocket'],
           'autoConnect': false,
+          'force new connection': true,
           'query': {
             'userId': me.value!.id,
           },
         },
       );
 
+      newOrderSocket?.onError((_) => logger.w(_));
       newOrderSocket?.onConnect(
         (_) {
+          logger.w(_);
           isWebsocketConnected.accept(true);
           statusController.value = true;
 
@@ -317,9 +329,12 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         // showNewOrders.accept(true);
       });
       newOrderSocket?.onDisconnect((_) {
+        logger.e(_);
         isWebsocketConnected.accept(false);
         statusController.value = false;
-        // initializeSocket();
+        if (_ != 'io client disconnect') {
+          initializeSocket();
+        }
       });
       newOrderSocket?.connect();
 

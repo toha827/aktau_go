@@ -54,6 +54,6 @@ class OrderRequestDomain {
         comment = comment ?? '',
         rating = rating ?? 0,
         sessionid = sessionid ?? '',
-        differenceInMinutes = updatedAt!.difference(createdAt!).inMinutes,
+        differenceInMinutes = updatedAt?.difference(createdAt!).inMinutes ?? 0,
         user = user ?? const UserDomain();
 }

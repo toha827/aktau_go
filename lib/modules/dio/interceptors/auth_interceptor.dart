@@ -25,7 +25,7 @@ authInterceptors(Dio dio) {
       }
     }
     if (_options.path.contains('api.aktau-go.kz')) {
-      _options.headers['Authorization'] = '';
+      _options.headers['Authorization'] = 'c2F0ZmFybV9tZW51X2FwaTphOTU5MGYyMjNkM2Q4M2ExNDVjNmJiZWQyMGM1NTJjZmQyZTc1OWUwMWI0YmE4NTc0OWE2YmQwZWMxOGY0MmI2';
     }
 
     if (_options.headers['Content-Type'] == null) {

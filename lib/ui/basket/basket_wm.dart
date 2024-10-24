@@ -2,6 +2,7 @@ import 'package:aktau_go/domains/food/food_domain.dart';
 import 'package:aktau_go/domains/user/user_domain.dart';
 import 'package:aktau_go/interactors/common/aktau_go_rest_client.dart';
 import 'package:aktau_go/interactors/profile_interactor.dart';
+import 'package:aktau_go/router/router.dart';
 import 'package:aktau_go/utils/logger.dart';
 import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary/elementary.dart';
@@ -190,6 +191,7 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      Routes.router.popUntil((predicate) => predicate.isFirst);
     } on Exception catch (e) {
       logger.e(e);
     }

@@ -109,8 +109,18 @@ class HistoryOrderCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+
                               Text(
-                                '${orderRequest.orderRequest!.updatedAt!.difference(orderRequest.orderRequest!.createdAt!).inMinutes} минут в пути',
+                                [
+                                  if (orderRequest.orderRequest!.differenceInMinutes / 24 > 0)
+                                  '${orderRequest.orderRequest!.differenceInMinutes ~/ 24} дней ',
+                                  if (orderRequest.orderRequest!.differenceInMinutes / 60 > 0)
+                                  '${orderRequest.orderRequest!.differenceInMinutes ~/ 60} часов ',
+                                  if (orderRequest.orderRequest!.differenceInMinutes % 60 > 0)
+                                  '${orderRequest.orderRequest!.differenceInMinutes % 60}',
+                            'минут в пути'
+                                ].join(' '),
+
                                 textAlign: TextAlign.center,
                                 style: text400Size10Greyscale60,
                               ),

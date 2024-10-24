@@ -19,10 +19,10 @@ class OrderRequestDomain {
   final String comment;
   final num rating;
   final String sessionid;
-
   final UserDomain? user;
+  final int differenceInMinutes;
 
-  const OrderRequestDomain({
+  OrderRequestDomain({
     String? id,
     this.createdAt,
     this.updatedAt,
@@ -54,5 +54,6 @@ class OrderRequestDomain {
         comment = comment ?? '',
         rating = rating ?? 0,
         sessionid = sessionid ?? '',
+        differenceInMinutes = updatedAt!.difference(createdAt!).inMinutes,
         user = user ?? const UserDomain();
 }

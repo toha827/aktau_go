@@ -49,6 +49,8 @@ abstract class IOrdersWM implements IWidgetModel {
 
   StateNotifier<DriverType> get orderType;
 
+  StateNotifier<Position> get driverPosition;
+
   ValueNotifier<bool> get statusController;
 
   void tabIndexChanged(int tabIndex);
@@ -109,6 +111,9 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
   @override
   final StateNotifier<UserDomain> me = StateNotifier();
+
+  @override
+  final StateNotifier<Position> driverPosition = StateNotifier();
 
   @override
   final StateNotifier<List<OrderRequestDomain>> orderRequests = StateNotifier(
@@ -264,8 +269,6 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     try {
       await _determinePosition();
 
-      var location = await Geolocator.getCurrentPosition();
-
       newOrderSocket = IO.io(
         'https://taxi.aktau-go.kz',
         <String, dynamic>{
@@ -277,21 +280,23 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         },
       );
 
-      newOrderSocket?.onConnect((_) {
-        isWebsocketConnected.accept(true);
-        statusController.value = true;
+      newOrderSocket?.onConnect(
+        (_) {
+          isWebsocketConnected.accept(true);
+          statusController.value = true;
 
-        newOrderSocket?.emit(
-          'updateLocation',
-          jsonEncode(
-            {
-              "driverId": me.value!.id,
-              "latitude": location.latitude.toString(),
-              "longitude": location.longitude.toString(),
-            },
-          ),
-        );
-      });
+          newOrderSocket?.emit(
+            'updateLocation',
+            jsonEncode(
+              {
+                "driverId": me.value!.id,
+                "latitude": driverPosition.value?.latitude.toString(),
+                "longitude": driverPosition.value?.longitude.toString(),
+              },
+            ),
+          );
+        },
+      );
 
       newOrderSocket?.on('orderRejected', (data) {
         print('Received new order: $data');
@@ -311,7 +316,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
       newOrderSocket?.onDisconnect((_) {
         isWebsocketConnected.accept(false);
         statusController.value = false;
-        initializeSocket();
+        // initializeSocket();
       });
       newOrderSocket?.connect();
 
@@ -354,6 +359,9 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
       // accessing the position and request users of the
       // App to enable the location services.
       await Geolocator.requestPermission();
+      Geolocator.getPositionStream().listen((position) {
+        driverPosition.accept(position);
+      });
     }
 
     permission = await Geolocator.checkPermission();

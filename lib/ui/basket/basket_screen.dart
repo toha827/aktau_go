@@ -325,7 +325,7 @@ class BasketScreen extends ElementaryWidget<IBasketWM> {
                               margin: const EdgeInsets.only(bottom: 16),
                               child: RoundedTextField(
                                 backgroundColor: Colors.white,
-                                controller: wm.levelTextController,
+                                controller: wm.floorTextController,
                                 keyboardType: TextInputType.number,
                                 hintText: 'Этаж',
                                 decoration: InputDecoration(

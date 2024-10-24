@@ -537,17 +537,25 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   Future<void> getMyLocation() async {
-    determineLocationPermission();
-    var location = await geoLocator.Geolocator.getCurrentPosition();
+    await determineLocationPermission();
+    // var location = await geoLocator.Geolocator.getCurrentPosition(
+    //   locationSettings: geoLocator.LocationSettings(
+    //     accuracy: geoLocator.LocationAccuracy.bestForNavigation,
+    //   ),
+    // );
 
-    userLocation.accept(
-      LatLng(
-        location.latitude,
-        location.longitude,
+    // userLocation.accept(
+    //   LatLng(
+    //     location.latitude,
+    //     location.longitude,
+    //   ),
+    // );
+
+    geoLocator.Geolocator.getPositionStream(
+      locationSettings: geoLocator.LocationSettings(
+        accuracy: geoLocator.LocationAccuracy.bestForNavigation,
       ),
-    );
-
-    geoLocator.Geolocator.getPositionStream().listen((data) {
+    ).listen((data) {
       mapboxMapController.move(
           LatLng(
             data.latitude,
@@ -555,11 +563,6 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
           ),
           17);
     });
-    mapboxMapController.move(
-        LatLng(
-          location.latitude,
-          location.longitude,
-        ),
-        17);
+
   }
 }

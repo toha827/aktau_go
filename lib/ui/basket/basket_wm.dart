@@ -1,4 +1,9 @@
 import 'package:aktau_go/domains/food/food_domain.dart';
+import 'package:aktau_go/domains/user/user_domain.dart';
+import 'package:aktau_go/interactors/common/aktau_go_rest_client.dart';
+import 'package:aktau_go/interactors/profile_interactor.dart';
+import 'package:aktau_go/utils/logger.dart';
+import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +22,8 @@ abstract class IBasketWM implements IWidgetModel {
 
   StateNotifier<FoodOrderForm> get foodOrderForm;
 
+  StateNotifier<UserDomain> get me;
+
   StateNotifier<FormzSubmissionStatus> get foodOrderStatus;
 
   StateNotifier<List<Map<String, dynamic>>> get selectedProducts;
@@ -29,7 +36,7 @@ abstract class IBasketWM implements IWidgetModel {
 
   TextEditingController get entranceTextController;
 
-  TextEditingController get levelTextController;
+  TextEditingController get floorTextController;
 
   TextEditingController get commentTextController;
 
@@ -59,6 +66,9 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   StateNotifier<FoodOrderForm> foodOrderForm = StateNotifier(
     initValue: FoodOrderForm(),
   );
+
+  @override
+  StateNotifier<UserDomain> me = StateNotifier();
 
   @override
   final StateNotifier<FormzSubmissionStatus> foodOrderStatus = StateNotifier(
@@ -116,7 +126,7 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   );
 
   @override
-  late final TextEditingController levelTextController =
+  late final TextEditingController floorTextController =
       createTextEditingController(
     initialText: '',
     onChanged: (level) {
@@ -138,9 +148,51 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   );
 
   @override
-  Future<void> handleSubmit() {
-    // TODO: implement handleSubmit
-    throw UnimplementedError();
+  void initWidgetModel() {
+    super.initWidgetModel();
+    fetchMe();
+  }
+
+  @override
+  Future<void> handleSubmit() async {
+    try {
+      await inject<AktauGoRestClient>().createNewFoodOrder(body: {
+        "name": me.value?.firstName,
+        "phone": me.value?.phone,
+        // "idaddr": 0,
+        "district": streetTextController.text,
+        "house": buildingTextController.text,
+        "flat": foodOrderForm.value!.apartment.value,
+        "porch": foodOrderForm.value!.entrance.value,
+        "floor": foodOrderForm.value!.floor.value,
+        "totalsm": selectedProducts.value!.fold(0, (prev, curr) {
+          prev +=
+              (curr['food'] as FoodDomain).price * (curr['quantity'] as int);
+          return prev;
+        }),
+        "docitems": [
+          ...?selectedProducts.value
+              ?.map(
+                (e) => {
+                  "idmenu": (e['food'] as FoodDomain).id,
+                  "name": (e['food'] as FoodDomain).name,
+                  "kolvo": (e['quantity'] as int),
+                  "amount": (e['food'] as FoodDomain).price * e['quantity'] as int,
+                },
+              )
+              .toList(),
+        ]
+      });
+
+      final snackBar = SnackBar(
+        content: Text(
+          'Заказ был отправлен',
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } on Exception catch (e) {
+      logger.e(e);
+    }
   }
 
   @override
@@ -183,5 +235,10 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
     } else {
       step.accept(step.value! - 1);
     }
+  }
+
+  void fetchMe() async {
+    final response = await inject<ProfileInteractor>().fetchUserProfile();
+    me.accept(response);
   }
 }

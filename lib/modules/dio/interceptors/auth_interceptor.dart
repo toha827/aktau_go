@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +24,10 @@ authInterceptors(Dio dio) {
         _options.headers['Authorization'] = 'Bearer $accessToken';
       }
     }
+    if (_options.path.contains('api.aktau-go.kz')) {
+      _options.headers['Authorization'] = '';
+    }
+
     if (_options.headers['Content-Type'] == null) {
       _options.headers['Content-Type'] = 'application/json';
     }

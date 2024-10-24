@@ -7,7 +7,7 @@ class FoodOrderForm with EquatableMixin, FormzMixin {
   final Required<num> apartment;
   final Required<num> building;
   final Required<num> entrance;
-  final Required<num> level;
+  final Required<num> floor;
   final String comment;
 
   FoodOrderForm({
@@ -15,7 +15,7 @@ class FoodOrderForm with EquatableMixin, FormzMixin {
     this.apartment = const Required.pure(),
     this.building = const Required.pure(),
     this.entrance = const Required.pure(),
-    this.level = const Required.pure(),
+    this.floor = const Required.pure(),
     this.comment = '',
   });
 
@@ -25,7 +25,7 @@ class FoodOrderForm with EquatableMixin, FormzMixin {
     apartment,
         building,
         entrance,
-        level,
+        floor,
       ];
 
   @override
@@ -34,7 +34,7 @@ class FoodOrderForm with EquatableMixin, FormzMixin {
     apartment,
         building,
         entrance,
-        level,
+        floor,
         comment,
       ];
 
@@ -51,7 +51,7 @@ class FoodOrderForm with EquatableMixin, FormzMixin {
         apartment: apartment ?? this.apartment,
         building: building ?? this.building,
         entrance: entrance ?? this.entrance,
-        level: level ?? this.level,
+        floor: level ?? this.floor,
         comment: comment ?? this.comment,
       );
 }

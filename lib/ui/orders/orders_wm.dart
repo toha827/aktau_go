@@ -362,11 +362,18 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
       // accessing the position and request users of the
       // App to enable the location services.
       await Geolocator.requestPermission();
-      final response = await Geolocator.getCurrentPosition();
-
+      final response = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+        ),
+      );
       driverPosition.accept(response);
 
-      Geolocator.getPositionStream().listen((position) {
+      Geolocator.getPositionStream(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+        ),
+      ).listen((position) {
         driverPosition.accept(position);
       });
     }

@@ -112,8 +112,6 @@ class HistoryOrderCard extends StatelessWidget {
 
                               Text(
                                 [
-                                  if (orderRequest.orderRequest!.differenceInMinutes / 24 > 0)
-                                  '${orderRequest.orderRequest!.differenceInMinutes ~/ 24} дней ',
                                   if (orderRequest.orderRequest!.differenceInMinutes / 60 > 0)
                                   '${orderRequest.orderRequest!.differenceInMinutes ~/ 60} часов ',
                                   if (orderRequest.orderRequest!.differenceInMinutes % 60 > 0)

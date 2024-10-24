@@ -17,6 +17,7 @@ import '../../domains/driver_registered_category/driver_registered_category_doma
 import '../../domains/order_request/order_request_domain.dart';
 import '../../domains/user/user_domain.dart';
 import '../../interactors/order_requests_interactor.dart';
+import '../../router/router.dart';
 import '../../utils/logger.dart';
 import '../../utils/utils.dart';
 import './widgets/order_request_bottom_sheet.dart';
@@ -62,6 +63,8 @@ abstract class IOrdersWM implements IWidgetModel {
   void tapNewOrders();
 
   void requestLocationPermission();
+
+  void registerOrderType();
 }
 
 class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
@@ -149,7 +152,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     initializeSocket();
   }
 
-  void fetchDriverRegisteredCategories() async {
+  Future<void> fetchDriverRegisteredCategories() async {
     final response =
         await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
 
@@ -416,5 +419,12 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
+  }
+
+  @override
+  Future<void> registerOrderType() async {
+    await Routes.router.navigate(Routes.driverRegistrationScreen);
+    await fetchDriverRegisteredCategories();
+    await fetchOrderRequests();
   }
 }

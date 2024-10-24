@@ -351,10 +351,7 @@ class OrdersScreen extends ElementaryWidget<IOrdersWM> {
                                               ),
                                             ),
                                             PrimaryButton.primary(
-                                              onPressed: () {
-                                                Routes.router.navigate(Routes
-                                                    .driverRegistrationScreen);
-                                              },
+                                              onPressed: wm.registerOrderType,
                                               text: 'Зарегестрироваться',
                                               textStyle: text400Size16White,
                                             )

@@ -19,3 +19,4 @@ const String icCall = '${_icons}call.svg';
 
 const String icTaxi = '${_icons}taxi.svg';
 const String icPlacemark = '${_icons}placemark.svg';
+const String icPlacemarkError = '${_icons}location-cross.svg';

@@ -44,7 +44,11 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
           return Scaffold(
             body: Stack(
               children: [
-                Positioned.fill(
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 100,
                   child: Stack(
                     children: [
                       FlutterMap(
@@ -364,7 +368,9 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                           return TenantHomeFoodsView(
                                                             scrollController:
                                                                 scrollController,
+                                                            onScrollDown: wm.scrollDraggableSheetDown,
                                                             foods: foods ?? [],
+
                                                             foodCategories:
                                                                 foodCategories ??
                                                                     [],

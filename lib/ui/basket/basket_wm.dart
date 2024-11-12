@@ -9,6 +9,8 @@ import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../forms/inputs/required_formz_input.dart';
 import '../../utils/text_editing_controller.dart';
@@ -154,13 +156,80 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
     fetchMe();
   }
 
+  Future<bool> _handlePermission() async {
+    // Проверка статуса разрешения
+    PermissionStatus status = await Permission.locationWhenInUse.status;
+
+    if (status.isGranted) {
+      return true;
+    } else if (status.isDenied) {
+      // Запрос разрешения
+      PermissionStatus result = await Permission.locationWhenInUse.request();
+      return result.isGranted;
+    } else if (status.isPermanentlyDenied) {
+      // Перенаправление пользователя в настройки приложения
+      await openAppSettings();
+      return false;
+    }
+
+    return false;
+  }
+
+  Future<int?> _checkLocation() async {
+    // Проверка и запрос разрешений
+    if (!await _handlePermission()) {
+      return null;
+    }
+
+    try {
+      // Получение текущего местоположения
+      var position = await Geolocator.getCurrentPosition();
+      var idshop = -1;
+
+      // Вычисление расстояния до целевых координат
+      double aktauDistanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        43.39,
+        51.09,
+      );
+
+      // Вычисление расстояния до целевых координат
+      double zhanaOzenDistanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        43.3412,
+        52.8619,
+      );
+
+      if (aktauDistanceInMeters <= 5000) {
+        idshop = 9;
+      } else {
+        logger.w(aktauDistanceInMeters);
+      }
+
+      if (zhanaOzenDistanceInMeters <= 5000) {
+        idshop = 13;
+      } else {
+        logger.w(zhanaOzenDistanceInMeters);
+      }
+
+      return idshop;
+    } catch (e) {
+      logger.e(e);
+    }
+    return -1;
+  }
+
   @override
   Future<void> handleSubmit() async {
     try {
+      var idshop = await _checkLocation();
+
       await inject<AktauGoRestClient>().createNewFoodOrder(body: {
         "name": me.value?.firstName,
         "phone": me.value?.phone,
-        // "idaddr": 0,
+        "idshop": idshop,
         "district": streetTextController.text,
         "house": buildingTextController.text,
         "flat": foodOrderForm.value!.apartment.value,
@@ -178,7 +247,8 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
                   "idmenu": (e['food'] as FoodDomain).id,
                   "name": (e['food'] as FoodDomain).name,
                   "kolvo": (e['quantity'] as int),
-                  "amount": (e['food'] as FoodDomain).price * e['quantity'] as int,
+                  "amount":
+                      (e['food'] as FoodDomain).price * e['quantity'] as int,
                 },
               )
               .toList(),

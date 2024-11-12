@@ -71,18 +71,7 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
               ? ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
-                    if (role != "GUEST")
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: PrimaryOutlinedButton.primary(
-                          style: outlinedRounded12,
-                          onPressed: wm.toggleRole,
-                          text: role == 'TENANT'
-                              ? 'Режим водителя'
-                              : 'Режим пассажира',
-                          textStyle: text400Size16Greyscale90,
-                        ),
-                      ),
+
                     Container(
                       width: double.infinity,
                       height: 96,
@@ -317,22 +306,25 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                       trailing: Icon(Icons.chevron_right),
                     ),
                     const SizedBox(height: 24),
-                    ListTile(
-                      onTap: () => showModalBottomSheet(
-                        context: context,
-                        isDismissible: true,
-                        isScrollControlled: true,
-                        builder: (context) =>
-                            EarningAnalyticsBottomSheet(me: me),
+                    if(['LANDLORD'].contains(role))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: ListTile(
+                        onTap: () => showModalBottomSheet(
+                          context: context,
+                          isDismissible: true,
+                          isScrollControlled: true,
+                          builder: (context) =>
+                              EarningAnalyticsBottomSheet(me: me),
+                        ),
+                        leading: SvgPicture.asset(icAnalytics),
+                        title: Text(
+                          'Аналитика',
+                          style: text400Size16Black,
+                        ),
+                        trailing: Icon(Icons.chevron_right),
                       ),
-                      leading: SvgPicture.asset(icAnalytics),
-                      title: Text(
-                        'Аналитика',
-                        style: text400Size16Black,
-                      ),
-                      trailing: Icon(Icons.chevron_right),
                     ),
-                    const SizedBox(height: 24),
                     ListTile(
                       leading: SvgPicture.asset(icSupport),
                       onTap: () => showModalBottomSheet(
@@ -400,6 +392,19 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                       ),
                       trailing: Icon(Icons.chevron_right),
                     ),
+                    const SizedBox(height: 24),
+                    if (role != "GUEST")
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: PrimaryOutlinedButton.primary(
+                          style: outlinedRounded12,
+                          onPressed: wm.toggleRole,
+                          text: role == 'TENANT'
+                              ? 'Режим водителя'
+                              : 'Режим пассажира',
+                          textStyle: text400Size16Greyscale90,
+                        ),
+                      ),
                     const SizedBox(height: 24),
                     ListTile(
                       onTap: wm.logOut,

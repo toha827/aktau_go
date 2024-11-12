@@ -9,10 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../../core/colors.dart';
+import '../../core/images.dart';
+import '../../core/text_styles.dart';
 import '../../domains/driver_registered_category/driver_registered_category_domain.dart';
 import '../../domains/order_request/order_request_domain.dart';
 import '../../domains/user/user_domain.dart';
@@ -20,6 +24,8 @@ import '../../interactors/order_requests_interactor.dart';
 import '../../router/router.dart';
 import '../../utils/logger.dart';
 import '../../utils/utils.dart';
+import '../widgets/primary_bottom_sheet.dart';
+import '../widgets/primary_button.dart';
 import './widgets/order_request_bottom_sheet.dart';
 import './orders_model.dart';
 import './orders_screen.dart';
@@ -53,6 +59,8 @@ abstract class IOrdersWM implements IWidgetModel {
   StateNotifier<Position> get driverPosition;
 
   ValueNotifier<bool> get statusController;
+
+  StateNotifier<bool> get isOrderRejected;
 
   void tabIndexChanged(int tabIndex);
 
@@ -91,6 +99,11 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
   @override
   final StateNotifier<bool> isWebsocketConnected = StateNotifier(
+    initValue: false,
+  );
+
+  @override
+  final StateNotifier<bool> isOrderRejected = StateNotifier(
     initValue: false,
   );
 
@@ -313,11 +326,58 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
         },
       );
 
-      newOrderSocket?.on('orderRejected', (data) {
+      newOrderSocket?.on('orderRejected', (data) async {
         print('Received new order: $data');
         // Обработка полученных данных
         fetchActiveOrder(
           openBottomSheet: false,
+        );
+        isOrderRejected.accept(true);
+        await showModalBottomSheet(
+          context: context,
+          isDismissible: true,
+          isScrollControlled: true,
+          builder: (context) => PrimaryBottomSheet(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Center(
+                  child: Container(
+                    width: 38,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: greyscale30,
+                      borderRadius: BorderRadius.circular(1.4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SvgPicture.asset(icPlacemarkError),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    'Поездка отклонена',
+                    style: text500Size20Greyscale90,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton.primary(
+                    onPressed: () async {
+                      isOrderRejected.accept(false);
+                      Navigator.of(context).pop();
+                    },
+                    text: 'Закрыть',
+                    textStyle: text400Size16White,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         );
         // showNewOrders.accept(true);
       });

@@ -8,17 +8,20 @@ import 'package:aktau_go/utils/num_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/button_styles.dart';
+import '../../widgets/pretty_wave_button.dart';
 
 class TenantHomeFoodsView extends StatefulWidget {
   final ScrollController scrollController;
   final List<FoodCategoryDomain> foodCategories;
   final List<FoodDomain> foods;
+  final VoidCallback onScrollDown;
 
   const TenantHomeFoodsView({
     super.key,
     required this.scrollController,
     required this.foodCategories,
     required this.foods,
+    required this.onScrollDown,
   });
 
   @override
@@ -194,6 +197,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                                 };
 
                                                                 setState(() {});
+                                                                widget
+                                                                    .onScrollDown();
                                                               },
                                                               style:
                                                                   primaryRounded8Padding,
@@ -243,6 +248,8 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                                                                 };
                                                               }
                                                               setState(() {});
+                                                              widget
+                                                                  .onScrollDown();
                                                             },
                                                             style:
                                                                 primaryRounded8Padding,
@@ -273,30 +280,49 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
               ],
             ),
           ),
-          if (selectedProductQuantity.length > 0)
+          if (selectedProductQuantity.isNotEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              decoration: BoxDecoration(
-                border: Border.symmetric(
-                  horizontal: BorderSide(
-                    color: greyscale10,
+              width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                decoration: BoxDecoration(
+                  border: Border.symmetric(
+                    horizontal: BorderSide(
+                      color: greyscale10,
+                    ),
                   ),
                 ),
-              ),
-              child: PrimaryButton.primary(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => BasketScreen(
-                        selectedProducts: selectedProductQuantity,
+                child: PrettyWaveButton(
+                  backgroundColor: primaryColor,
+                  child: Text(
+                    'Перейти в корзину (${selectedProductQuantity.fold<int>(0, (prev, curr) => prev += (curr['quantity'] as int))})',
+                    style: text400Size16White,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => BasketScreen(
+                          selectedProducts: selectedProductQuantity,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                text: 'Перейти в корзину',
-                textStyle: text400Size16White,
-              ),
-            ),
+                    );
+                  },
+                )
+                // PrimaryButton.primary(
+                //             onPressed: () {
+                //               Navigator.of(context).push(
+                //                 MaterialPageRoute(
+                //                   builder: (context) => BasketScreen(
+                //                     selectedProducts: selectedProductQuantity,
+                //                   ),
+                //                 ),
+                //               );
+                //             },
+                //             text:
+                //                 'Перейти в корзину (${selectedProductQuantity.fold<int>(0, (prev, curr) => prev += (curr['quantity'] as int))})',
+                //             textStyle: text400Size16White,
+                //           ),
+                ),
         ],
       ),
     );

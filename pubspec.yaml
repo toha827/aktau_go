@@ -71,6 +71,7 @@ dependencies:
   flutter_rating_stars: ^1.1.0
   flutter_compass: ^0.8.0
   flutter_launcher_icons: ^0.14.1
+  pretty_animated_buttons: ^0.0.2
 
 dev_dependencies:
   flutter_test:

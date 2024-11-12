@@ -1,11 +1,4 @@
-import 'dart:convert';
-
-import 'package:aktau_go/core/text_styles.dart';
-import 'package:aktau_go/interactors/order_requests_interactor.dart';
-import 'package:aktau_go/interactors/profile_interactor.dart';
-import 'package:aktau_go/ui/widgets/primary_bottom_sheet.dart';
-import 'package:aktau_go/ui/widgets/primary_button.dart';
-import 'package:aktau_go/utils/text_editing_controller.dart';
+import 'package:aktau_go/core/images.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +11,13 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
+import '../../core/text_styles.dart';
+import '../../interactors/order_requests_interactor.dart';
+import '../../interactors/profile_interactor.dart';
+import '../widgets/primary_bottom_sheet.dart';
+import '../widgets/primary_button.dart';
+import '../../utils/text_editing_controller.dart';
 import '../../core/colors.dart';
-import '../../domains/active_request/active_request_domain.dart';
 import '../../domains/food/food_category_domain.dart';
 import '../../domains/food/food_domain.dart';
 import '../../domains/user/user_domain.dart';
@@ -29,13 +27,11 @@ import '../../interactors/food_interactor.dart';
 import '../../models/active_client_request/active_client_request_model.dart';
 import '../../utils/logger.dart';
 import '../../utils/utils.dart';
-import '../orders/widgets/active_order_bottom_sheet.dart';
 import '../widgets/rounded_text_field.dart';
 import './forms/driver_order_form.dart';
 
 import './tenant_home_model.dart';
 import './tenant_home_screen.dart';
-import 'widgets/active_client_order_bottom_sheet.dart';
 
 defaultTenantHomeWMFactory(BuildContext context) => TenantHomeWM(
       TenantHomeModel(
@@ -57,6 +53,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
   TabController get tabController;
 
   StateNotifier<int> get currentTab;
+
+  StateNotifier<bool> get isOrderRejected;
 
   StateNotifier<List<FoodCategoryDomain>> get foodCategories;
 
@@ -83,6 +81,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
   void cancelActiveClientOrder();
 
   void getMyLocation();
+
+  void scrollDraggableSheetDown();
 }
 
 class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
@@ -127,6 +127,11 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   @override
   final StateNotifier<double> rateTaxi = StateNotifier(
     initValue: 0,
+  );
+
+  @override
+  final StateNotifier<bool> isOrderRejected = StateNotifier(
+    initValue: false,
   );
 
   @override
@@ -296,21 +301,72 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
         <String, dynamic>{
           'transports': ['websocket'],
           'autoConnect': false,
+          'force new connection': true,
           'query': {
             'userId': me.value!.id,
           },
         },
       );
 
-      newOrderSocket?.on('orderRejected', (data) {
-        print('Received new order: $data');
-        // Обработка полученных данных
-        // fetchActiveOrder(
-        //   openBottomSheet: false,
-        // );
-        // showNewOrders.accept(true);
-        fetchActiveOrder();
-      });
+      newOrderSocket?.on(
+        'orderRejected',
+        (data) async {
+          print('Received new order: $data');
+          // Обработка полученных данных
+          // fetchActiveOrder(
+          //   openBottomSheet: false,
+          // );
+          // showNewOrders.accept(true);
+          isOrderRejected.accept(true);
+          await showModalBottomSheet(
+            context: context,
+            isDismissible: true,
+            isScrollControlled: true,
+            builder: (context) => PrimaryBottomSheet(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: greyscale30,
+                        borderRadius: BorderRadius.circular(1.4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SvgPicture.asset(icPlacemarkError),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      'Поездка отклонена',
+                      style: text500Size20Greyscale90,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton.primary(
+                      onPressed: () async {
+                        isOrderRejected.accept(false);
+                        Navigator.of(context).pop();
+                      },
+                      text: 'Закрыть',
+                      textStyle: text400Size16White,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          );
+          fetchActiveOrder();
+        },
+      );
 
       newOrderSocket?.on('orderStarted', (data) {
         print('Received new order: $data');
@@ -563,5 +619,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
           ),
           17);
     });
+  }
+
+  @override
+  void scrollDraggableSheetDown() {
+    draggableScrollableController.jumpTo(1);
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart' as geoLocator;
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -66,6 +67,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
 
   StateNotifier<double> get draggableMaxChildSize;
 
+  StateNotifier<bool> get showFood;
+
   DraggableScrollableController get draggableScrollableController;
 
   Future<void> determineLocationPermission({
@@ -109,6 +112,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   final StateNotifier<LatLng> driverLocation = StateNotifier();
+  @override
+  final StateNotifier<bool> showFood = StateNotifier(
+    initValue: false,
+  );
 
   @override
   late final MapController mapboxMapController = MapController();
@@ -161,6 +168,64 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     fetchFoods();
     fetchActiveOrder();
     getMyLocation();
+    Geolocator.getPositionStream().listen((data) {
+      userLocation.accept(
+        LatLng(
+          data.latitude,
+          data.longitude,
+        ),
+      );
+      mapboxMapController.move(
+          LatLng(
+            userLocation.value!.latitude,
+            userLocation.value!.longitude,
+          ),
+          17);
+
+      _checkLocation();
+    });
+  }
+
+  Future<int?> _checkLocation() async {
+    try {
+      // Получение текущего местоположения
+      var position = userLocation.value!;
+      var idshop = -1;
+
+      // Вычисление расстояния до целевых координат
+      double aktauDistanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        43.39,
+        51.09,
+      );
+
+      // Вычисление расстояния до целевых координат
+      double zhanaOzenDistanceInMeters = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        43.3412,
+        52.8619,
+      );
+
+      if (aktauDistanceInMeters <= 5000) {
+        idshop = 9;
+      } else {
+        logger.w(aktauDistanceInMeters);
+      }
+
+      if (zhanaOzenDistanceInMeters <= 5000) {
+        idshop = 13;
+      } else {
+        logger.w(zhanaOzenDistanceInMeters);
+      }
+      if (idshop != -1) {
+        showFood.accept(true);
+      }
+    } catch (e) {
+      logger.e(e);
+    }
+    showFood.accept(false);
   }
 
   @override
@@ -212,21 +277,14 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   Future<void> onMapCreated(MapboxMap controller) async {
     determineLocationPermission();
 
-    var location = await geoLocator.Geolocator.getCurrentPosition();
-
-    userLocation.accept(
-      LatLng(
-        location.latitude,
-        location.longitude,
-      ),
-    );
-
-    mapboxMapController.move(
-        LatLng(
-          location.latitude,
-          location.longitude,
-        ),
-        17);
+    if (userLocation.value != null) {
+      mapboxMapController.move(
+          LatLng(
+            userLocation.value!.latitude,
+            userLocation.value!.longitude,
+          ),
+          17);
+    }
 
     // mapboxMapController.value?.flyTo(
     //   CameraOptions(

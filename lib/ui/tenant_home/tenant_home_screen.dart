@@ -151,11 +151,16 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                         ActiveClientRequestModel? activeOrder,
                         UserDomain? me,
                       ) {
-                        return DoubleSourceBuilder(
+                        return TripleSourceBuilder(
                             firstSource: wm.draggableMaxChildSize,
                             secondSource: wm.locationPermission,
-                            builder: (context, double? draggableMaxChildSize,
-                                LocationPermission? locationPermission) {
+                            thirdSource: wm.showFood,
+                            builder: (
+                              context,
+                              double? draggableMaxChildSize,
+                              LocationPermission? locationPermission,
+                              bool? showFood,
+                            ) {
                               return DraggableScrollableSheet(
                                 initialChildSize: draggableMaxChildSize!,
                                 controller: wm.draggableScrollableController,
@@ -310,6 +315,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                   tabs: [
                                                     ...[
                                                       DriverType.TAXI,
+                                                      if (showFood == true)
                                                       "FOOD",
                                                       DriverType.CARGO,
                                                       DriverType.INTERCITY_TAXI,
@@ -349,7 +355,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                         wm.onSubmit(form,
                                                             DriverType.TAXI),
                                                   ),
-                                                if (currentTab == 1)
+                                                if (currentTab == 1 && showFood == true)
                                                   EntityStateNotifierBuilder(
                                                     listenableEntityState:
                                                         wm.foods,
@@ -368,9 +374,9 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                           return TenantHomeFoodsView(
                                                             scrollController:
                                                                 scrollController,
-                                                            onScrollDown: wm.scrollDraggableSheetDown,
+                                                            onScrollDown: wm
+                                                                .scrollDraggableSheetDown,
                                                             foods: foods ?? [],
-
                                                             foodCategories:
                                                                 foodCategories ??
                                                                     [],
@@ -379,7 +385,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                       );
                                                     },
                                                   ),
-                                                if (currentTab == 2)
+                                                if (showFood == true ? currentTab == 2 : currentTab == 1)
                                                   TenantHomeCreateOrderView(
                                                     scrollController:
                                                         scrollController,
@@ -387,7 +393,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                         wm.onSubmit(form,
                                                             DriverType.CARGO),
                                                   ),
-                                                if (currentTab == 3)
+                                                if (showFood == true ? currentTab == 3 : currentTab == 2)
                                                   TenantHomeCreateOrderView(
                                                     isIntercity: true,
                                                     scrollController:

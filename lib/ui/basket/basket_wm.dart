@@ -85,6 +85,9 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   );
 
   @override
+  final StateNotifier<Position> userPosition = StateNotifier();
+
+  @override
   late final TextEditingController apartmentTextController =
       createTextEditingController(
     initialText: '',
@@ -153,6 +156,9 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   @override
   void initWidgetModel() {
     super.initWidgetModel();
+    Geolocator.getPositionStream().listen((data) {
+      userPosition.accept(data);
+    });
     fetchMe();
   }
 
@@ -183,7 +189,7 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
 
     try {
       // Получение текущего местоположения
-      var position = await Geolocator.getCurrentPosition();
+      var position = userPosition.value!;
       var idshop = -1;
 
       // Вычисление расстояния до целевых координат

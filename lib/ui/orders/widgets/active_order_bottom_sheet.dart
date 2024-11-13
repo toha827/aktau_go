@@ -246,7 +246,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.activeOrder.whatsappUser?.name ??
+                                      widget.activeOrder.whatsappUser?.fullName ??
                                           '',
                                       textAlign: TextAlign.center,
                                       style: text400Size16Greyscale90,

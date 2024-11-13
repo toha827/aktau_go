@@ -81,6 +81,7 @@ class LoginScreen extends ElementaryWidget<ILoginWM> {
                         const SizedBox(height: 16),
                         RoundedTextField(
                           controller: wm.phoneTextEditingController,
+                          keyboardType: TextInputType.phone,
                           inputFormatters: [
                             wm.phoneFormatter,
                           ],

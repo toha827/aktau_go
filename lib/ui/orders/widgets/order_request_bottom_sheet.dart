@@ -100,7 +100,7 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.orderRequest.user?.name ?? '',
+                          widget.orderRequest.user?.fullName ?? '',
                           textAlign: TextAlign.center,
                           style: text400Size16Greyscale90,
                         ),
@@ -129,33 +129,34 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
-                borderRadius: BorderRadius.circular(8),
+          if (widget.orderRequest.comment.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.only(top: 8),
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    child: Text(
-                      widget.orderRequest.comment,
-                      style: text400Size12Greyscale90,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      child: Text(
+                        widget.orderRequest.comment,
+                        style: text400Size12Greyscale90,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 24),
           Container(
             width: double.infinity,

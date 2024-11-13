@@ -16,6 +16,9 @@ ActiveClientRequestModel _$ActiveClientRequestModelFromJson(
       driver: json['driver'] == null
           ? null
           : UserModel.fromJson(json['driver'] as Map<String, dynamic>),
+      car: json['car'] == null
+          ? null
+          : CarModel.fromJson(json['car'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ActiveClientRequestModelToJson(
@@ -23,4 +26,5 @@ Map<String, dynamic> _$ActiveClientRequestModelToJson(
     <String, dynamic>{
       'order': instance.order,
       'driver': instance.driver,
+      'car': instance.car,
     };

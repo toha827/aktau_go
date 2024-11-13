@@ -226,7 +226,6 @@ class _ActiveClientOrderBottomSheetState
                         if (activeRequest.driver != null)
                           Container(
                             width: double.infinity,
-                            height: 80,
                             margin: const EdgeInsets.only(top: 10),
                             padding: const EdgeInsets.all(16),
                             decoration: ShapeDecoration(
@@ -266,6 +265,12 @@ class _ActiveClientOrderBottomSheetState
                                       children: [
                                         Text(
                                           '${activeRequest.driver?.lastName ?? ''} ${activeRequest.driver?.firstName ?? ''}',
+                                          textAlign: TextAlign.center,
+                                          style: text400Size16Greyscale90,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${activeRequest.car?.props?.brand ?? ''} ${activeRequest.car?.props?.model ?? ''} ${activeRequest.car?.props?.SSN ?? ''}',
                                           textAlign: TextAlign.center,
                                           style: text400Size16Greyscale90,
                                         ),
@@ -382,8 +387,10 @@ class _ActiveClientOrderBottomSheetState
                                                         widget.activeOrder.order
                                                                 ?.to ??
                                                             '',
-                                                        textAlign: TextAlign.left,
-                                                        style: text400Size16Black,
+                                                        textAlign:
+                                                            TextAlign.left,
+                                                        style:
+                                                            text400Size16Black,
                                                       ),
                                                     ),
                                                   ],

@@ -5,6 +5,7 @@ import 'package:aktau_go/ui/widgets/primary_dropdown.dart';
 import 'package:aktau_go/ui/widgets/rounded_text_field.dart';
 import 'package:aktau_go/utils/text_editing_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/images.dart';
@@ -212,12 +213,16 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
             ),
           ),
           Container(
-            height: 48,
+            // height: 48,
             margin: const EdgeInsets.only(bottom: 24),
             child: RoundedTextField(
               backgroundColor: Colors.white,
               controller: commentTextController,
               hintText: 'Комментарий',
+              maxLines: 2,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(50)
+              ],
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,

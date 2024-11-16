@@ -639,10 +639,52 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   Future<void> cancelActiveClientOrder() async {
-    await model.rejectOrderByClientRequest(
-      orderRequestId: activeOrder.value!.order!.id!,
+    await showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 24,horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Text('Вы уверены что хотите отменить заказ?', style: text400Size16Greyscale90,),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryButton.secondary(
+                      text: 'Назад',
+                      onPressed: Navigator.of(context).pop,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: PrimaryButton.primary(
+                      text: 'Отменить',
+                      textStyle: text400Size16White,
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await model.rejectOrderByClientRequest(
+                          orderRequestId: activeOrder.value!.order!.id!,
+                        );
+                        fetchActiveOrder();
+                      },
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
     );
-    fetchActiveOrder();
   }
 
   @override

@@ -87,10 +87,53 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   }
 
   Future<void> rejectOrder() async {
-    await inject<OrderRequestsInteractor>().rejectOrderRequest(
-      orderRequestId: widget.activeOrder.orderRequest!.id,
+    await showDialog(
+      context: context,
+      builder: (context) => Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 24,horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Text('Вы уверены что хотите отменить заказ?', style: text400Size16Greyscale90,),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: PrimaryButton.secondary(
+                      text: 'Назад',
+                      onPressed: Navigator.of(context).pop,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: PrimaryButton.primary(
+                      text: 'Отменить',
+                      textStyle: text400Size16White,
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await inject<OrderRequestsInteractor>().rejectOrderRequest(
+                          orderRequestId: widget.activeOrder.orderRequest!.id,
+                        );
+                        fetchActiveOrder();
+                      },
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
     );
-    fetchActiveOrder();
+
   }
 
   Future<void> startDrive() async {

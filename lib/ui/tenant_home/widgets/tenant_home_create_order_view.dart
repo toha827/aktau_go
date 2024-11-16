@@ -221,7 +221,7 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
               hintText: 'Комментарий',
               maxLines: 2,
               inputFormatters: [
-                LengthLimitingTextInputFormatter(50)
+                LengthLimitingTextInputFormatter(30)
               ],
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(

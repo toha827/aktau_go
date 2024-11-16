@@ -315,6 +315,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                   tabs: [
                                                     ...[
                                                       DriverType.TAXI,
+                                                      DriverType.DELIVERY,
                                                       if (showFood == true)
                                                       "FOOD",
                                                       DriverType.CARGO,

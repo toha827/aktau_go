@@ -62,6 +62,12 @@ const TextStyle text400Size16Greyscale90 = TextStyle(
   fontWeight: FontWeight.w400,
 );
 
+const TextStyle text500Size16Greyscale90 = TextStyle(
+  color: greyscale90,
+  fontSize: 16,
+  fontWeight: FontWeight.w500,
+);
+
 const TextStyle text400Size12Greyscale90 = TextStyle(
   color: greyscale90,
   fontSize: 12,

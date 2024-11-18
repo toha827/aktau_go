@@ -69,6 +69,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
 
   StateNotifier<bool> get showFood;
 
+  StateNotifier<double> get draggableScrolledSize;
+
   DraggableScrollableController get draggableScrollableController;
 
   Future<void> determineLocationPermission({
@@ -137,6 +139,11 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   );
 
   @override
+  final StateNotifier<double> draggableScrolledSize = StateNotifier(
+    initValue: 0,
+  );
+
+  @override
   final StateNotifier<bool> isOrderRejected = StateNotifier(
     initValue: false,
   );
@@ -168,6 +175,9 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     fetchFoods();
     fetchActiveOrder();
     getMyLocation();
+    draggableScrollableController.addListener(() {
+      draggableScrolledSize.accept(draggableScrollableController.size);
+    });
     Geolocator.getPositionStream().listen((data) {
       userLocation.accept(
         LatLng(

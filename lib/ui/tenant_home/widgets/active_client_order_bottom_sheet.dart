@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aktau_go/domains/user/user_domain.dart';
 import 'package:aktau_go/interactors/order_requests_interactor.dart';
 import 'package:aktau_go/models/active_client_request/active_client_request_model.dart';
+import 'package:aktau_go/ui/driver_registration/driver_registration_wm.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:aktau_go/utils/num_utils.dart';
 import 'package:aktau_go/utils/utils.dart';
@@ -264,21 +265,56 @@ class _ActiveClientOrderBottomSheetState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
+                                          'Водитель',
+                                          textAlign: TextAlign.center,
+                                          style: text400Size12Greyscale60,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
                                           '${activeRequest.driver?.lastName ?? ''} ${activeRequest.driver?.firstName ?? ''}',
                                           textAlign: TextAlign.center,
                                           style: text400Size16Greyscale90,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          '${activeRequest.car?.props?.brand ?? ''} ${activeRequest.car?.props?.model ?? ''} ${activeRequest.car?.props?.SSN ?? ''}',
-                                          textAlign: TextAlign.center,
-                                          style: text400Size16Greyscale90,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'Водитель',
+                                          'Машина',
                                           textAlign: TextAlign.center,
                                           style: text400Size12Greyscale60,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 50,
+                                              height: 50,
+                                              child: Image.asset(
+                                                'assets/images/car.png',
+                                                color: CarColor.fromHex(
+                                                        activeRequest
+                                                            .car!.props!.color!)
+                                                    ?.color,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${activeRequest.car?.props?.brand ?? ''} ${activeRequest.car?.props?.model ?? ''}',
+                                                  textAlign: TextAlign.center,
+                                                  style:
+                                                      text400Size16Greyscale90,
+                                                ),
+                                                Text(
+                                                  '${activeRequest.car?.props?.number ?? ''}',
+                                                  textAlign: TextAlign.center,
+                                                  style:
+                                                      text400Size16Greyscale90,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

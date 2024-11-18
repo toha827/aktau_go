@@ -107,6 +107,7 @@ abstract class RestClient {
   Future<List<ActiveRequestModel>> getHistoryOrders({
     @Path('type') required String type,
   });
+
   /// запрос профиля пользователя
   @GET('v1/order-requests/client-history/{type}')
   Future<List<ActiveRequestModel>> getClientHistoryOrders({
@@ -116,6 +117,18 @@ abstract class RestClient {
   /// запрос профиля пользователя
   @POST('v1/order-requests/category/register')
   Future<void> createDriverCategory({
+    @Field('governmentNumber') required String governmentNumber,
+    @Field('type') required String type,
+    @Field('model') required String model,
+    @Field('brand') required String brand,
+    @Field('color') required String color,
+    @Field('SSN') required String SSN,
+  });
+
+  /// запрос профиля пользователя
+  @PUT('v1/order-requests/category/{id}')
+  Future<void> editDriverCategory({
+    @Path('id') required String id,
     @Field('governmentNumber') required String governmentNumber,
     @Field('type') required String type,
     @Field('model') required String model,
@@ -143,6 +156,7 @@ abstract class RestClient {
   Future<void> createDriverOrder({
     @Body() required Map<String, dynamic> body,
   });
+
   /// запрос профиля пользователя
   @POST('v1/order-requests/make-review')
   Future<void> makeReview({

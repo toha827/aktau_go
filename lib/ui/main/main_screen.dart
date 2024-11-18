@@ -23,10 +23,8 @@ class MainScreen extends ElementaryWidget<IMainWM> {
           String? currentRole,
         ) {
           return Scaffold(
-            body: PageView(
-              physics: NeverScrollableScrollPhysics(),
-              controller: wm.pageController,
-              onPageChanged: wm.onPageChanged,
+            body: IndexedStack(
+              index: currentPage,
               children: wm.getUserScreenByRole(),
             ),
             bottomNavigationBar: Theme(

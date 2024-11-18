@@ -39,6 +39,8 @@ abstract class IDriverRegistrationWM implements IWidgetModel {
   void handleColorChanged(CarColor value);
 
   void handleDriverTypeChanged(DriverType value);
+
+  selectCategory(DriverRegisteredCategoryDomain e);
 }
 
 class DriverRegistrationWM
@@ -50,14 +52,26 @@ class DriverRegistrationWM
 
   @override
   Future<void> submitProfileRegistration() async {
-    await inject<RestClient>().createDriverCategory(
-      governmentNumber: driverRegistrationForm.value!.governmentNumber.value!,
-      type: driverRegistrationForm.value!.type.value!.key!,
-      model: driverRegistrationForm.value!.model.value!,
-      brand: driverRegistrationForm.value!.brand.value!,
-      color: driverRegistrationForm.value!.color.value!.label,
-      SSN: driverRegistrationForm.value!.SSN.value,
-    );
+    if (driverRegistrationForm.value?.id.value == null) {
+      await inject<RestClient>().createDriverCategory(
+        governmentNumber: driverRegistrationForm.value!.governmentNumber.value!,
+        type: driverRegistrationForm.value!.type.value!.key!,
+        model: driverRegistrationForm.value!.model.value!,
+        brand: driverRegistrationForm.value!.brand.value!,
+        color: driverRegistrationForm.value!.color.value!.hexCode,
+        SSN: driverRegistrationForm.value!.SSN.value,
+      );
+    } else {
+      await inject<RestClient>().editDriverCategory(
+        id: driverRegistrationForm.value!.id.value!,
+        governmentNumber: driverRegistrationForm.value!.governmentNumber.value!,
+        type: driverRegistrationForm.value!.type.value!.key!,
+        model: driverRegistrationForm.value!.model.value!,
+        brand: driverRegistrationForm.value!.brand.value!,
+        color: driverRegistrationForm.value!.color.value!.hexCode,
+        SSN: driverRegistrationForm.value!.SSN.value,
+      );
+    }
 
     Routes.router.popUntil(
       (predicate) => predicate.isFirst,
@@ -181,16 +195,68 @@ class DriverRegistrationWM
 
     driverRegisteredCategories.accept(response);
   }
+
+  @override
+  selectCategory(DriverRegisteredCategoryDomain e) {
+    driverRegistrationForm.accept(
+      driverRegistrationForm.value?.copyWith(
+        id: Required.dirty(e.id),
+        brand: Required.dirty(e.brand),
+        model: Required.dirty(e.model),
+        color: Required.dirty(CarColor.fromHex(e.color)),
+        type: Required.dirty(e.categoryType),
+        governmentNumber: Required.dirty(e.number),
+        SSN: SSNFormzInput.dirty(e.sSN),
+      ),
+    );
+
+    brandTextEditingController.text = e.brand;
+    modelTextEditingController.text = e.model;
+    governmentNumberTextEditingController.text = e.number;
+    ssnTextEditingController.text = e.sSN;
+  }
 }
 
 class CarColor with EquatableMixin {
   final Color color;
   final String label;
 
+  // Convert color to hex code
+  String get hexCode =>
+      '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
+
   CarColor({
     required this.color,
     required this.label,
   });
+
+  // Create a CarColor from a hex code
+  static CarColor? fromHex(String hexCode) {
+    final carColors = [
+      CarColor(color: Colors.red, label: 'Красный'),
+      CarColor(color: Colors.green, label: 'Зелёный'),
+      CarColor(color: Colors.blue, label: 'Синий'),
+      CarColor(color: Colors.yellow, label: 'Жёлтый'),
+      CarColor(color: Colors.orange, label: 'Оранжевый'),
+      CarColor(color: Colors.purple, label: 'Фиолетовый'),
+      CarColor(color: Colors.black, label: 'Чёрный'),
+      CarColor(color: Colors.white, label: 'Белый'),
+      CarColor(color: Colors.grey, label: 'Серый'),
+      CarColor(color: Colors.brown, label: 'Коричневый'),
+    ];
+    // Remove the '#' if present
+    String cleanHex = hexCode.replaceFirst('#', '');
+    for (var carColor in carColors) {
+      if (carColor.color.value
+              .toRadixString(16)
+              .padLeft(8, '0')
+              .toUpperCase() ==
+          cleanHex) {
+        return carColor;
+      }
+    }
+    return null; // Return null if no match found
+  }
 
   @override
   List<Object?> get props => [

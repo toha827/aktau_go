@@ -6,6 +6,7 @@ import './inputs/required_formz_input.dart';
 import './inputs/ssn_formz_input.dart';
 
 class DriverRegistrationForm with FormzMixin, EquatableMixin {
+  final Required<String> id;
   final Required<String> governmentNumber;
   final Required<String> model;
   final Required<String> brand;
@@ -14,6 +15,7 @@ class DriverRegistrationForm with FormzMixin, EquatableMixin {
   final SSNFormzInput SSN;
 
   DriverRegistrationForm({
+    this.id = const Required.pure(),
     this.governmentNumber = const Required.pure(),
     this.type = const Required.pure(),
     this.model = const Required.pure(),
@@ -34,6 +36,7 @@ class DriverRegistrationForm with FormzMixin, EquatableMixin {
 
   @override
   List<Object?> get props => [
+        id,
         governmentNumber,
         type,
         model,
@@ -43,6 +46,7 @@ class DriverRegistrationForm with FormzMixin, EquatableMixin {
       ];
 
   DriverRegistrationForm copyWith({
+    Required<String>? id,
     Required<String>? governmentNumber,
     Required<DriverType>? type,
     Required<String>? model,
@@ -51,6 +55,7 @@ class DriverRegistrationForm with FormzMixin, EquatableMixin {
     SSNFormzInput? SSN,
   }) =>
       DriverRegistrationForm(
+        id: id ?? this.id,
         governmentNumber: governmentNumber ?? this.governmentNumber,
         type: type ?? this.type,
         model: model ?? this.model,
@@ -81,7 +86,6 @@ extension IdentityStatusTypeExt on DriverType {
     DriverType.INTERCITY_TAXI: "Межгород",
     DriverType.CARGO: "Груз",
   };
-
 
   static const assetMap = {
     DriverType.TAXI: "assets/icons/taxi.svg",

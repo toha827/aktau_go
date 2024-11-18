@@ -71,23 +71,98 @@ class DriverRegistrationScreen extends ElementaryWidget<IDriverRegistrationWM> {
                               const SizedBox(width: 16),
                               ...?driverRegisteredCategories
                                   ?.map(
-                                    (e) => Container(
-                                      margin: const EdgeInsets.only(right: 10),
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                              'Категория: ${e.categoryType.value}'),
-                                          Text('Авто: ${e.brand} ${e.model}'),
-                                          Text('Гос. номер: ${e.number}'),
-                                          Text('Цвет: ${e.color}'),
-                                        ],
+                                    (e) => InkWell(
+                                      onTap: () => wm.selectCategory(e),
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          maxWidth: 200,
+                                        ),
+                                        margin:
+                                            const EdgeInsets.only(right: 10),
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  RichText(
+                                                    text: TextSpan(
+                                                        text: 'Категория: ',
+                                                        style:
+                                                            text400Size16Greyscale60,
+                                                        children: [
+                                                          TextSpan(
+                                                              text:
+                                                                  '${e.categoryType.value}',
+                                                              style:
+                                                                  text500Size16Greyscale90)
+                                                        ]),
+                                                  ),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                        text: 'Авто: ',
+                                                        style:
+                                                            text400Size16Greyscale60,
+                                                        children: [
+                                                          TextSpan(
+                                                              text:
+                                                                  '${e.brand} ${e.model}',
+                                                              style:
+                                                                  text500Size16Greyscale90)
+                                                        ]),
+                                                  ),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                        text: 'Гос. номер: ',
+                                                        style:
+                                                            text400Size16Greyscale60,
+                                                        children: [
+                                                          TextSpan(
+                                                              text: e.number,
+                                                              style:
+                                                                  text500Size16Greyscale90)
+                                                        ]),
+                                                  ),
+                                                  RichText(
+                                                    text: TextSpan(
+                                                        text: 'Цвет: ',
+                                                        style:
+                                                            text400Size16Greyscale60,
+                                                        children: [
+                                                          TextSpan(
+                                                              text: CarColor
+                                                                  .fromHex(
+                                                                e.color,
+                                                              )?.label,
+                                                              style:
+                                                                  text500Size16Greyscale90)
+                                                        ]),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: Center(
+                                                child: IconButton(
+                                                  icon: Icon(Icons.edit),
+                                                  onPressed: () =>
+                                                      wm.selectCategory(e),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   )
@@ -142,7 +217,7 @@ class DriverRegistrationScreen extends ElementaryWidget<IDriverRegistrationWM> {
                         ),
                         RoundedTextField(
                           backgroundColor: Colors.white,
-                          hintText: 'Бренд',
+                          hintText: 'Chevrolet',
                           hintStyle: text400Size16Greyscale30,
                           controller: wm.brandTextEditingController,
                         ),
@@ -157,7 +232,7 @@ class DriverRegistrationScreen extends ElementaryWidget<IDriverRegistrationWM> {
                         ),
                         RoundedTextField(
                           backgroundColor: Colors.white,
-                          hintText: 'Модель',
+                          hintText: 'Кобальт',
                           hintStyle: text400Size16Greyscale30,
                           controller: wm.modelTextEditingController,
                         ),
@@ -206,8 +281,12 @@ class DriverRegistrationScreen extends ElementaryWidget<IDriverRegistrationWM> {
                           child: PrimaryDropdown<DriverType>(
                             initialOption: driverRegistrationForm?.type.value,
                             options: DriverType.values
-                                .where((e) => !driverRegisteredCategories.any(
-                                    (category) => category.categoryType == e))
+                                .where((e) =>
+                                    driverRegistrationForm?.id.value == null
+                                        ? !driverRegisteredCategories.any(
+                                            (category) =>
+                                                category.categoryType == e)
+                                        : true)
                                 .map((e) => SelectOption(
                                       value: e,
                                       label: e.value,

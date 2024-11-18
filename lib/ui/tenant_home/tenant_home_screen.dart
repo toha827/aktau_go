@@ -33,13 +33,15 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
 
   @override
   Widget build(ITenantHomeWM wm) {
-    return DoubleSourceBuilder(
+    return TripleSourceBuilder(
         firstSource: wm.userLocation,
         secondSource: wm.driverLocation,
+        thirdSource: wm.draggableScrolledSize,
         builder: (
           context,
           LatLng? userLocation,
           LatLng? driverLocation,
+          double? draggableScrolledSize,
         ) {
           return Scaffold(
             body: Stack(
@@ -48,7 +50,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                   top: 0,
                   left: 0,
                   right: 0,
-                  bottom: 100,
+                  bottom: (MediaQuery.of(context).size.height * (draggableScrolledSize ?? 0)) - 50,
                   child: Stack(
                     children: [
                       FlutterMap(

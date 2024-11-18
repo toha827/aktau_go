@@ -526,6 +526,45 @@ class _RestClient implements RestClient {
   }
 
   @override
+  Future<void> editDriverCategory({
+    required String id,
+    required String governmentNumber,
+    required String type,
+    required String model,
+    required String brand,
+    required String color,
+    required String SSN,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = {
+      'governmentNumber': governmentNumber,
+      'type': type,
+      'model': model,
+      'brand': brand,
+      'color': color,
+      'SSN': SSN,
+    };
+    await _dio.fetch<void>(_setStreamType<void>(Options(
+      method: 'PUT',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'v1/order-requests/category/${id}',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        ))));
+  }
+
+  @override
   Future<List<DriverRegisteredCategoryModel>>
       driverRegisteredCategories() async {
     final _extra = <String, dynamic>{};

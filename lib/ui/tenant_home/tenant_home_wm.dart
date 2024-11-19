@@ -218,19 +218,20 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
         52.8619,
       );
 
-      if (aktauDistanceInMeters <= 5000) {
+      if (aktauDistanceInMeters <= 40000) {
         idshop = 9;
       } else {
         logger.w(aktauDistanceInMeters);
       }
 
-      if (zhanaOzenDistanceInMeters <= 5000) {
+      if (zhanaOzenDistanceInMeters <= 40000) {
         idshop = 13;
       } else {
         logger.w(zhanaOzenDistanceInMeters);
       }
       if (idshop != -1) {
         showFood.accept(true);
+        return -1;
       }
     } catch (e) {
       logger.e(e);
@@ -653,7 +654,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       context: context,
       builder: (context) => Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 24,horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -663,7 +664,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
             children: [
               SizedBox(
                 width: double.infinity,
-                child: Text('Вы уверены что хотите отменить заказ?', style: text400Size16Greyscale90,),
+                child: Text(
+                  'Вы уверены что хотите отменить заказ?',
+                  style: text400Size16Greyscale90,
+                ),
               ),
               const SizedBox(height: 24),
               Row(

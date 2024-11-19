@@ -178,123 +178,123 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                       ),
                     ),
                     SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF73C4E),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  child: SvgPicture.asset(
-                                      'assets/icons/subscription.svg'),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Container(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Подписка активна',
-                                          textAlign: TextAlign.center,
-                                          style: text600Size16White,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Container(
-                                          width: 16,
-                                          height: 16,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: 16,
-                                                height: 16,
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 16,
-                                                        height: 16,
-                                                        child: Stack()),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Container(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Начало подписки: 02.06.24',
-                                          textAlign: TextAlign.center,
-                                          style: text400Size10White,
-                                        ),
-                                        Text(
-                                          'Конец подписки:  02.07.24',
-                                          textAlign: TextAlign.center,
-                                          style: text400Size10White,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Container(
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.symmetric(
+                    //       horizontal: 16, vertical: 12),
+                    //   clipBehavior: Clip.antiAlias,
+                    //   decoration: BoxDecoration(
+                    //     color: Color(0xFFF73C4E),
+                    //     borderRadius: BorderRadius.circular(16),
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     mainAxisAlignment: MainAxisAlignment.start,
+                    //     crossAxisAlignment: CrossAxisAlignment.center,
+                    //     children: [
+                    //       Container(
+                    //         width: 48,
+                    //         height: 48,
+                    //         child: Row(
+                    //           mainAxisSize: MainAxisSize.min,
+                    //           mainAxisAlignment: MainAxisAlignment.center,
+                    //           crossAxisAlignment: CrossAxisAlignment.center,
+                    //           children: [
+                    //             Container(
+                    //               width: 48,
+                    //               height: 48,
+                    //               child: SvgPicture.asset(
+                    //                   'assets/icons/subscription.svg'),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       const SizedBox(width: 8),
+                    //       Expanded(
+                    //         child: Container(
+                    //           child: Column(
+                    //             mainAxisSize: MainAxisSize.min,
+                    //             mainAxisAlignment: MainAxisAlignment.center,
+                    //             crossAxisAlignment: CrossAxisAlignment.start,
+                    //             children: [
+                    //               Container(
+                    //                 width: double.infinity,
+                    //                 child: Row(
+                    //                   mainAxisSize: MainAxisSize.min,
+                    //                   mainAxisAlignment:
+                    //                       MainAxisAlignment.spaceBetween,
+                    //                   crossAxisAlignment:
+                    //                       CrossAxisAlignment.center,
+                    //                   children: [
+                    //                     Text(
+                    //                       'Подписка активна',
+                    //                       textAlign: TextAlign.center,
+                    //                       style: text600Size16White,
+                    //                     ),
+                    //                     const SizedBox(width: 10),
+                    //                     Container(
+                    //                       width: 16,
+                    //                       height: 16,
+                    //                       child: Row(
+                    //                         mainAxisSize: MainAxisSize.min,
+                    //                         mainAxisAlignment:
+                    //                             MainAxisAlignment.center,
+                    //                         crossAxisAlignment:
+                    //                             CrossAxisAlignment.center,
+                    //                         children: [
+                    //                           Container(
+                    //                             width: 16,
+                    //                             height: 16,
+                    //                             child: Row(
+                    //                               mainAxisSize:
+                    //                                   MainAxisSize.min,
+                    //                               mainAxisAlignment:
+                    //                                   MainAxisAlignment.center,
+                    //                               crossAxisAlignment:
+                    //                                   CrossAxisAlignment.center,
+                    //                               children: [
+                    //                                 Container(
+                    //                                     width: 16,
+                    //                                     height: 16,
+                    //                                     child: Stack()),
+                    //                               ],
+                    //                             ),
+                    //                           ),
+                    //                         ],
+                    //                       ),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //               const SizedBox(height: 4),
+                    //               Container(
+                    //                 child: Column(
+                    //                   mainAxisSize: MainAxisSize.min,
+                    //                   mainAxisAlignment:
+                    //                       MainAxisAlignment.center,
+                    //                   crossAxisAlignment:
+                    //                       CrossAxisAlignment.start,
+                    //                   children: [
+                    //                     Text(
+                    //                       'Начало подписки: 02.06.24',
+                    //                       textAlign: TextAlign.center,
+                    //                       style: text400Size10White,
+                    //                     ),
+                    //                     Text(
+                    //                       'Конец подписки:  02.07.24',
+                    //                       textAlign: TextAlign.center,
+                    //                       style: text400Size10White,
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                     const SizedBox(height: 24),
                     ListTile(
                       onTap: wm.navigateDriverRegistration,

@@ -396,13 +396,16 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     if (role != "GUEST")
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: PrimaryOutlinedButton.primary(
-                          style: outlinedRounded12,
-                          onPressed: wm.toggleRole,
-                          text: role == 'TENANT'
-                              ? 'Режим водителя'
-                              : 'Режим пассажира',
-                          textStyle: text400Size16Greyscale90,
+                        child: SizedBox(
+                          height: 70,
+                          child: PrimaryOutlinedButton.primary(
+                            style: outlinedRounded12Green,
+                            onPressed: wm.toggleRole,
+                            text: role == 'TENANT'
+                                ? 'Режим водителя'
+                                : 'Режим пассажира',
+                            textStyle: text600Size16White,
+                          ),
                         ),
                       ),
                     const SizedBox(height: 24),

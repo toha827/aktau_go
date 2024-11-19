@@ -141,6 +141,13 @@ final ButtonStyle outlinedRounded12 = OutlinedButton.styleFrom(
   ),
   elevation: 0,
 );
+final ButtonStyle outlinedRounded12Green = OutlinedButton.styleFrom(
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+  ),
+  backgroundColor: Colors.green,
+  elevation: 0,
+);
 
 final ButtonStyle outlinedRounded12BorderGreyscale30 = OutlinedButton.styleFrom(
   shape: RoundedRectangleBorder(

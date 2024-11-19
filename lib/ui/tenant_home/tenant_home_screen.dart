@@ -50,7 +50,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                   top: 0,
                   left: 0,
                   right: 0,
-                  bottom: (MediaQuery.of(context).size.height * (draggableScrolledSize ?? 0)) - 50,
+                  bottom: (MediaQuery.of(context).size.height * (draggableScrolledSize ?? 0)) - 100,
                   child: Stack(
                     children: [
                       FlutterMap(

@@ -8,8 +8,11 @@ import 'package:aktau_go/utils/num_utils.dart';
 import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../core/colors.dart';
@@ -91,7 +94,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
       context: context,
       builder: (context) => Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 24,horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -101,7 +104,10 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
             children: [
               SizedBox(
                 width: double.infinity,
-                child: Text('Вы уверены что хотите отменить заказ?', style: text400Size16Greyscale90,),
+                child: Text(
+                  'Вы уверены что хотите отменить заказ?',
+                  style: text400Size16Greyscale90,
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -119,7 +125,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                       textStyle: text400Size16White,
                       onPressed: () async {
                         Navigator.of(context).pop();
-                        await inject<OrderRequestsInteractor>().rejectOrderRequest(
+                        await inject<OrderRequestsInteractor>()
+                            .rejectOrderRequest(
                           orderRequestId: widget.activeOrder.orderRequest!.id,
                         );
                         fetchActiveOrder();
@@ -133,7 +140,6 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
         ),
       ),
     );
-
   }
 
   Future<void> startDrive() async {
@@ -289,7 +295,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.activeOrder.whatsappUser?.fullName ??
+                                      widget.activeOrder.whatsappUser
+                                              ?.fullName ??
                                           '',
                                       textAlign: TextAlign.center,
                                       style: text400Size16Greyscale90,
@@ -375,19 +382,71 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                              child: MapWidget(
-                                styleUri: MapboxStyles.STANDARD,
-                                cameraOptions: CameraOptions(
-                                  zoom: 12,
-                                  bearing: 0,
-                                  pitch: 0,
-                                  center: Point(
-                                    coordinates: Position(
-                                      widget.activeOrder.orderRequest?.lng ?? 0,
-                                      widget.activeOrder.orderRequest?.lat ?? 0,
-                                    ),
+                              child:  FlutterMap(
+                                // mapController: wm.mapboxMapController,
+                                options: MapOptions(
+                                  initialCenter: LatLng(
+                                    activeRequest.orderRequest!.lat.toDouble(),
+                                    activeRequest.orderRequest!.lng.toDouble(),
                                   ),
                                 ),
+                                children: [
+                                  openStreetMapTileLayer,
+                                  MarkerLayer(
+                                    // rotate: counterRotate,
+                                    markers: [
+                                      if (activeRequest.orderRequest != null)
+                                        Marker(
+                                          point: LatLng(
+                                            activeRequest.orderRequest!.lat.toDouble(),
+                                            activeRequest.orderRequest!.lng.toDouble(),
+                                          ),
+                                          width: 16,
+                                          height: 16,
+                                          alignment: Alignment.centerLeft,
+                                          child: Icon(
+                                            Icons.location_on_rounded,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      // if (driverLocation != null)
+                                      //   Marker(
+                                      //     point: LatLng(
+                                      //       driverLocation.latitude.toDouble(),
+                                      //       driverLocation.longitude.toDouble(),
+                                      //     ),
+                                      //     width: 24,
+                                      //     height: 24,
+                                      //     alignment: Alignment.centerLeft,
+                                      //     child: SvgPicture.asset(
+                                      //       icTaxi,
+                                      //       color: primaryColor,
+                                      //     ),
+                                      //   ),
+                                      // Marker(
+                                      //   point:
+                                      //       LatLng(47.18664724067855, -1.5436768515939427),
+                                      //   width: 64,
+                                      //   height: 64,
+                                      //   alignment: Alignment.centerRight,
+                                      //   child: ColoredBox(
+                                      //     color: Colors.pink,
+                                      //     child: Align(
+                                      //       alignment: Alignment.centerLeft,
+                                      //       child: Text('<--'),
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      // Marker(
+                                      //   point:
+                                      //       LatLng(47.18664724067855, -1.5436768515939427),
+                                      //   rotate: false,
+                                      //   child: ColoredBox(color: Colors.black),
+                                      // ),
+                                    ],
+                                  ),
+                                  CurrentLocationLayer(),
+                                ],
                               ),
                             ),
                           ],
@@ -477,8 +536,10 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                                   const SizedBox(width: 4),
                                                   Expanded(
                                                     child: Text(
-                                                      widget.activeOrder
-                                                              .orderRequest?.to ??
+                                                      widget
+                                                              .activeOrder
+                                                              .orderRequest
+                                                              ?.to ??
                                                           '',
                                                       textAlign: TextAlign.left,
                                                       style: text400Size16Black,
@@ -652,3 +713,12 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
     );
   }
 }
+
+
+TileLayer get openStreetMapTileLayer => TileLayer(
+  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+  // Use the recommended flutter_map_cancellable_tile_provider package to
+  // support the cancellation of loading tiles.
+  tileProvider: CancellableNetworkTileProvider(),
+);

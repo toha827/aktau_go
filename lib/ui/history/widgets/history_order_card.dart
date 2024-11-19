@@ -140,39 +140,43 @@ class HistoryOrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Откуда',
-                        textAlign: TextAlign.center,
-                        style: text400Size12Greyscale60,
-                      ),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              child: SvgPicture.asset(
-                                  'assets/icons/placemark.svg'),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${orderRequest.orderRequest?.from ?? ''}',
-                              textAlign: TextAlign.center,
-                              style: text500Size12Greyscale90,
-                            ),
-                          ],
+                Expanded(
+                  child: Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Откуда',
+                          textAlign: TextAlign.center,
+                          style: text400Size12Greyscale60,
                         ),
-                      ),
-                    ],
+                        Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                child: SvgPicture.asset(
+                                    'assets/icons/placemark.svg'),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  '${orderRequest.orderRequest?.from ?? ''}',
+                                  textAlign: TextAlign.center,
+                                  style: text500Size12Greyscale90,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -183,39 +187,43 @@ class HistoryOrderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Куда',
-                        textAlign: TextAlign.center,
-                        style: text400Size12Greyscale60,
-                      ),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              child: SvgPicture.asset(
-                                  'assets/icons/placemark.svg'),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${orderRequest.orderRequest?.to ?? ''}',
-                              textAlign: TextAlign.center,
-                              style: text500Size12Greyscale90,
-                            ),
-                          ],
+                Expanded(
+                  child: Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Куда',
+                          textAlign: TextAlign.center,
+                          style: text400Size12Greyscale60,
                         ),
-                      ),
-                    ],
+                        Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                child: SvgPicture.asset(
+                                    'assets/icons/placemark.svg'),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  '${orderRequest.orderRequest?.to ?? ''}',
+                                  textAlign: TextAlign.center,
+                                  style: text500Size12Greyscale90,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

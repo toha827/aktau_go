@@ -71,7 +71,6 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
               ? ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
-
                     Container(
                       width: double.infinity,
                       height: 96,
@@ -306,25 +305,25 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                       trailing: Icon(Icons.chevron_right),
                     ),
                     const SizedBox(height: 24),
-                    if(['LANDLORD'].contains(role))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: ListTile(
-                        onTap: () => showModalBottomSheet(
-                          context: context,
-                          isDismissible: true,
-                          isScrollControlled: true,
-                          builder: (context) =>
-                              EarningAnalyticsBottomSheet(me: me),
+                    if (['LANDLORD'].contains(role))
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: ListTile(
+                          onTap: () => showModalBottomSheet(
+                            context: context,
+                            isDismissible: true,
+                            isScrollControlled: true,
+                            builder: (context) =>
+                                EarningAnalyticsBottomSheet(me: me),
+                          ),
+                          leading: SvgPicture.asset(icAnalytics),
+                          title: Text(
+                            'Аналитика',
+                            style: text400Size16Black,
+                          ),
+                          trailing: Icon(Icons.chevron_right),
                         ),
-                        leading: SvgPicture.asset(icAnalytics),
-                        title: Text(
-                          'Аналитика',
-                          style: text400Size16Black,
-                        ),
-                        trailing: Icon(Icons.chevron_right),
                       ),
-                    ),
                     ListTile(
                       leading: SvgPicture.asset(icSupport),
                       onTap: () => showModalBottomSheet(
@@ -415,6 +414,16 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                           const EdgeInsets.symmetric(horizontal: 16),
                       title: TextLocale(
                         'Выйти',
+                        style: text400Size16Primary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ListTile(
+                      onTap: wm.logOut,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
+                      title: TextLocale(
+                        'Удалить аккаунт',
                         style: text400Size16Primary,
                       ),
                     ),

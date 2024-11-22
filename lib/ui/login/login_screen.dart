@@ -2,6 +2,7 @@ import 'package:aktau_go/forms/phone_login_form.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../core/colors.dart';
 import '../../core/text_styles.dart';
@@ -94,6 +95,23 @@ class LoginScreen extends ElementaryWidget<ILoginWM> {
                           text: 'Получить код на WhatsApp',
                           textStyle: text400Size16White,
                         ),
+                        const SizedBox(height: 16),
+                        InkWell(
+                          onTap: () {
+                            launchUrlString('http://doner24aktau.kz/jjj.html');
+                          },
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              'Политика конфиденциальности',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.lightBlue,
+                              ),
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),

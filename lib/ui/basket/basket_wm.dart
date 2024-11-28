@@ -190,7 +190,7 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
     try {
       // Получение текущего местоположения
       var position = userPosition.value!;
-      var idshop = -1;
+      var idshop = 9;
 
       // Вычисление расстояния до целевых координат
       double aktauDistanceInMeters = Geolocator.distanceBetween(
@@ -208,13 +208,13 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
         52.8619,
       );
 
-      if (aktauDistanceInMeters <= 5000) {
+      if (aktauDistanceInMeters <= 40000) {
         idshop = 9;
       } else {
         logger.w(aktauDistanceInMeters);
       }
 
-      if (zhanaOzenDistanceInMeters <= 5000) {
+      if (zhanaOzenDistanceInMeters <= 40000) {
         idshop = 13;
       } else {
         logger.w(zhanaOzenDistanceInMeters);

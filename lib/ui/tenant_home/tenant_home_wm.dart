@@ -194,6 +194,11 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
       _checkLocation();
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      draggableScrolledSize.accept(0);
+      draggableScrolledSize.accept(draggableScrollableController.size);
+    });
   }
 
   Future<int?> _checkLocation() async {

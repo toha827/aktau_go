@@ -92,7 +92,7 @@ class LoginScreen extends ElementaryWidget<ILoginWM> {
                           onPressed: phoneLoginForm!.isValid
                               ? wm.submitPhoneLogin
                               : null,
-                          text: 'Получить код на WhatsApp',
+                          text: 'Получить смс-код',
                           textStyle: text400Size16White,
                         ),
                         const SizedBox(height: 16),

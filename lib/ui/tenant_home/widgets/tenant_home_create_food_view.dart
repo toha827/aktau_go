@@ -6,6 +6,7 @@ import 'package:aktau_go/ui/basket/basket_screen.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:aktau_go/utils/num_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../../core/button_styles.dart';
 import '../../widgets/pretty_wave_button.dart';
@@ -31,6 +32,7 @@ class TenantHomeFoodsView extends StatefulWidget {
 class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
   int currentTab = 0;
   PageController _pageController = PageController();
+  final controller = AutoScrollController();
 
   List<Map<String, dynamic>> selectedProductQuantity = [];
 
@@ -56,33 +58,39 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                   height: 40,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
+                    controller: controller,
                     children: [
                       for (int index = 0;
                           index < widget.foodCategories.length;
                           index++)
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              currentTab = index;
-                            });
-                            _pageController.jumpToPage(currentTab);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 16,
+                        AutoScrollTag(
+                          index: index,
+                          key: Key('category_${index}'),
+                          controller: controller,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                currentTab = index;
+                              });
+                              _pageController.jumpToPage(currentTab);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                border: currentTab == index
+                                    ? Border(
+                                        bottom: BorderSide(
+                                          color: primaryColor,
+                                          width: 2,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                              child: Text(widget.foodCategories[index].name),
                             ),
-                            decoration: BoxDecoration(
-                              border: currentTab == index
-                                  ? Border(
-                                      bottom: BorderSide(
-                                        color: primaryColor,
-                                        width: 2,
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                            child: Text(widget.foodCategories[index].name),
                           ),
                         )
                     ],
@@ -94,6 +102,9 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
                     onPageChanged: (page) {
                       setState(() {
                         currentTab = page;
+
+                        controller.scrollToIndex(page,
+                            preferPosition: AutoScrollPosition.begin);
                       });
                     },
                     children: [
@@ -282,7 +293,7 @@ class _TenantHomeFoodsViewState extends State<TenantHomeFoodsView> {
           ),
           if (selectedProductQuantity.isNotEmpty)
             Container(
-              width: double.infinity,
+                width: double.infinity,
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                 decoration: BoxDecoration(

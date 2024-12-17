@@ -114,6 +114,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   final StateNotifier<LatLng> driverLocation = StateNotifier();
+
   @override
   final StateNotifier<bool> showFood = StateNotifier(
     initValue: false,
@@ -494,9 +495,26 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
       newOrderSocket?.on('driverLocation', (data) {
         print('Received new order: $data');
-        driverLocation.accept(LatLng(data['lat'], data['lng']));
+        driverLocation.accept(
+          LatLng(
+            double.tryParse(data['lat']) ?? data['lat'],
+            double.tryParse(data['lng']) ?? data['lng'],
+          ),
+        );
 
-        mapboxMapController.move(LatLng(data['lat'], data['lng']), 17);
+        mapboxMapController.move(
+            findCenter(
+              LatLng(
+                double.tryParse(data['lat']) ?? data['lat'],
+                double.tryParse(data['lng']) ?? data['lng'],
+              ),
+              userLocation.value ??
+                  LatLng(
+                    double.tryParse(data['lat']) ?? data['lat'],
+                    double.tryParse(data['lng']) ?? data['lng'],
+                  ),
+            ),
+            12);
         // fetchActiveOrder();
       });
 
@@ -509,6 +527,12 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     } on Exception catch (e) {
       logger.e(e);
     }
+  }
+
+  LatLng findCenter(LatLng point1, LatLng point2) {
+    double centerLat = (point1.latitude + point2.latitude) / 2;
+    double centerLng = (point1.longitude + point2.longitude) / 2;
+    return LatLng(centerLat, centerLng);
   }
 
   Future<void> disconnectWebsocket() async {

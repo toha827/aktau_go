@@ -390,12 +390,21 @@ class BasketScreen extends ElementaryWidget<IBasketWM> {
                       ),
                       const SizedBox(width: 24),
                       Expanded(
-                        child: PrimaryButton.primary(
-                          onPressed:
-                              foodOrderForm!.isValid ? wm.handleSubmit : null,
-                          text: 'Заказать',
-                          textStyle: text400Size16White,
-                        ),
+                        child: StateNotifierBuilder(
+                            listenableState: wm.isLoading,
+                            builder: (
+                              context,
+                              bool? isLoading,
+                            ) {
+                              return PrimaryButton.primary(
+                                isLoading: isLoading,
+                                onPressed: foodOrderForm!.isValid
+                                    ? wm.handleSubmit
+                                    : null,
+                                text: 'Заказать',
+                                textStyle: text400Size16White,
+                              );
+                            }),
                       ),
                     ],
                   ),

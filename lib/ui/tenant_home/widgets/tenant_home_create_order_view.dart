@@ -220,9 +220,7 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
               controller: commentTextController,
               hintText: 'Комментарий',
               maxLines: 2,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(30)
-              ],
+              inputFormatters: [LengthLimitingTextInputFormatter(30)],
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -252,7 +250,12 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
     try {
       await widget.onSubmit(driverOrderForm);
     } on Exception catch (e) {
-      // TODO
+      final snackBar = SnackBar(
+        content: Text(
+          'Не удалось создать заказ',
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
     setState(() {
       isLoading = false;

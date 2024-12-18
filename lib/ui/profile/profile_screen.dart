@@ -295,16 +295,19 @@ class ProfileScreen extends ElementaryWidget<IProfileWM> {
                     //   ),
                     // ),
                     const SizedBox(height: 24),
-                    ListTile(
-                      onTap: wm.navigateDriverRegistration,
-                      leading: SvgPicture.asset(icRegistration),
-                      title: Text(
-                        'Регистрация',
-                        style: text400Size16Black,
+                    if (['LANDLORD'].contains(role))
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: ListTile(
+                          onTap: wm.navigateDriverRegistration,
+                          leading: SvgPicture.asset(icRegistration),
+                          title: Text(
+                            'Регистрация',
+                            style: text400Size16Black,
+                          ),
+                          trailing: Icon(Icons.chevron_right),
+                        ),
                       ),
-                      trailing: Icon(Icons.chevron_right),
-                    ),
-                    const SizedBox(height: 24),
                     if (['LANDLORD'].contains(role))
                       Padding(
                         padding: const EdgeInsets.only(bottom: 24),

@@ -26,6 +26,7 @@ abstract class IBasketWM implements IWidgetModel {
   StateNotifier<FoodOrderForm> get foodOrderForm;
 
   StateNotifier<UserDomain> get me;
+  StateNotifier<bool> get isLoading;
 
   StateNotifier<FormzSubmissionStatus> get foodOrderStatus;
 
@@ -68,6 +69,11 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
   @override
   StateNotifier<FoodOrderForm> foodOrderForm = StateNotifier(
     initValue: FoodOrderForm(),
+  );
+
+  @override
+  StateNotifier<bool> isLoading = StateNotifier(
+    initValue: false,
   );
 
   @override
@@ -229,6 +235,7 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
 
   @override
   Future<void> handleSubmit() async {
+    isLoading.accept(true);
     try {
       var idshop = await _checkLocation();
 
@@ -270,7 +277,14 @@ class BasketWM extends WidgetModel<BasketScreen, BasketModel>
       Routes.router.popUntil((predicate) => predicate.isFirst);
     } on Exception catch (e) {
       logger.e(e);
+      final snackBar = SnackBar(
+        content: Text(
+          'Не удалось создать заказ',
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+    isLoading.accept(false);
   }
 
   @override

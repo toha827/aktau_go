@@ -11,7 +11,9 @@ import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../../core/colors.dart';
@@ -56,7 +58,7 @@ abstract class IOrdersWM implements IWidgetModel {
 
   StateNotifier<DriverType> get orderType;
 
-  StateNotifier<Position> get driverPosition;
+  StateNotifier<LatLng> get driverPosition;
 
   ValueNotifier<bool> get statusController;
 
@@ -83,6 +85,8 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   ) : super(model);
 
   IO.Socket? newOrderSocket;
+
+  late StreamSubscription onUserLocationChanged;
 
   @override
   final StateNotifier<int> tabIndex = StateNotifier(
@@ -129,7 +133,11 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   final StateNotifier<UserDomain> me = StateNotifier();
 
   @override
-  final StateNotifier<Position> driverPosition = StateNotifier();
+  final StateNotifier<LatLng> driverPosition = StateNotifier(
+      initValue: LatLng(
+    inject<SharedPreferences>().getDouble('latitude') ?? 0,
+    inject<SharedPreferences>().getDouble('longitude') ?? 0,
+  ));
 
   @override
   final StateNotifier<List<OrderRequestDomain>> orderRequests = StateNotifier(
@@ -446,14 +454,20 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
           accuracy: LocationAccuracy.bestForNavigation,
         ),
       );
-      driverPosition.accept(response);
+      driverPosition.accept(LatLng(
+        response.latitude,
+        response.longitude,
+      ));
 
-      Geolocator.getPositionStream(
+      onUserLocationChanged = Geolocator.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.bestForNavigation,
         ),
       ).listen((position) {
-        driverPosition.accept(position);
+        driverPosition.accept(LatLng(
+          position.latitude,
+          position.longitude,
+        ));
       });
     }
 

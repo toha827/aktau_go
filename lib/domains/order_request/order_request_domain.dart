@@ -13,6 +13,8 @@ class OrderRequestDomain {
   final String orderStatus;
   final String from;
   final String to;
+  final String fromMapboxId;
+  final String toMapboxId;
   final num lat;
   final num lng;
   final num price;
@@ -34,6 +36,8 @@ class OrderRequestDomain {
     String? orderStatus,
     String? from,
     String? to,
+    String? fromMapboxId,
+    String? toMapboxId,
     num? lat,
     num? lng,
     num? price,
@@ -48,10 +52,12 @@ class OrderRequestDomain {
         orderStatus = orderStatus ?? '',
         from = from ?? '',
         to = to ?? '',
+        fromMapboxId = fromMapboxId ?? '',
+        toMapboxId = toMapboxId ?? '',
         lat = lat ?? 0,
         lng = lng ?? 0,
         price = price ?? 0,
-        comment = comment ?? '',
+        comment = (comment ?? '').split(';')[0],
         rating = rating ?? 0,
         sessionid = sessionid ?? '',
         differenceInMinutes = updatedAt?.difference(createdAt!).inMinutes ?? 0,

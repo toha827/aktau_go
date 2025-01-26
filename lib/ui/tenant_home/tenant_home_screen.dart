@@ -1,19 +1,19 @@
-import 'package:aktau_go/core/images.dart';
-import 'package:aktau_go/domains/food/food_category_domain.dart';
-import 'package:aktau_go/domains/food/food_domain.dart';
-import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_food_view.dart';
-import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_create_order_view.dart';
-import 'package:aktau_go/ui/tenant_home/widgets/tenant_home_tab_view.dart';
-import 'package:aktau_go/ui/widgets/primary_bottom_sheet.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
+
+import '../../domains/food/food_category_domain.dart';
+import '../../domains/food/food_domain.dart';
+import '../widgets/my_mapbox_map.dart';
+import './widgets/tenant_home_create_food_view.dart';
+import './widgets/tenant_home_create_order_view.dart';
+import './widgets/tenant_home_tab_view.dart';
+import '../widgets/primary_bottom_sheet.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:elementary/elementary.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../core/colors.dart';
 import '../../core/text_styles.dart';
@@ -55,6 +55,9 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                       100,
                   child: Stack(
                     children: [
+                      // MyMapboxMap(
+                      //   initialCameraPosition: wm.initialCameraPosition,
+                      // ),
                       FlutterMap(
                         mapController: wm.mapboxMapController,
                         options: MapOptions(
@@ -96,6 +99,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                     color: primaryColor,
                                   ),
                                 ),
+                              // PolylineLayer(polylines: []),
                               // Marker(
                               //   point:
                               //       LatLng(47.18664724067855, -1.5436768515939427),
@@ -110,7 +114,7 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                               //     ),
                               //   ),
                               // ),
-                              // Marker(
+                              // Marker  (
                               //   point:
                               //       LatLng(47.18664724067855, -1.5436768515939427),
                               //   rotate: false,

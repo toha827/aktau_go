@@ -18,6 +18,8 @@ class OrderRequestPropsModel {
   final String? orderStatus;
   final String? from;
   final String? to;
+  final String? fromMapboxId;
+  final String? toMapboxId;
   final DateTime? startTime;
   final DateTime? arrivalTime;
   final num? lat;
@@ -38,6 +40,8 @@ class OrderRequestPropsModel {
     this.orderStatus,
     this.from,
     this.to,
+    this.fromMapboxId,
+    this.toMapboxId,
     this.startTime,
     this.arrivalTime,
     this.lat,

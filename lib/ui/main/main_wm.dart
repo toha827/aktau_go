@@ -1,3 +1,4 @@
+import 'package:aktau_go/interactors/location_interactor.dart';
 import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/interactors/session_interactor.dart';
 import 'package:aktau_go/utils/utils.dart';
@@ -20,6 +21,7 @@ import './main_screen.dart';
 defaultMainWMFactory(BuildContext context) => MainWM(MainModel(
       inject<SessionInteractor>(),
       inject<MainNavigationInteractor>(),
+      inject<LocationInteractor>(),
     ));
 
 abstract class IMainWM implements IWidgetModel {
@@ -58,6 +60,8 @@ class MainWM extends WidgetModel<MainScreen, MainModel> implements IMainWM {
     model.currentTab.addListener(() {
       currentPage.accept(model.currentTab.value);
     });
+
+    model.requestLocation();
   }
 
   @override

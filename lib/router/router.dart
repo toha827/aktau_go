@@ -1,5 +1,6 @@
 import 'package:aktau_go/ui/driver_registration/driver_registration_screen.dart';
 import 'package:aktau_go/ui/main/main_screen.dart';
+import 'package:aktau_go/ui/onboarding/onboarding_screen.dart';
 import 'package:aktau_go/ui/registration/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:seafarer/seafarer.dart';
@@ -44,6 +45,10 @@ class Routes {
         name: driverRegistrationScreen,
         builder: (context, args, params) => DriverRegistrationScreen(),
       ),
+      SeafarerRoute(
+        name: onboardingScreen,
+        builder: (context, args, params) => OnboardingScreen(),
+      ),
     ]);
   }
 
@@ -52,6 +57,7 @@ class Routes {
   static const String otpScreen = '/otp_screen';
   static const String registrationScreen = '/registration_screen';
   static const String driverRegistrationScreen = '/driver_registration_screen';
+  static const String onboardingScreen = '/onboarding_screen';
 }
 
 class MyCustomTransition extends CustomSeafarerTransition {

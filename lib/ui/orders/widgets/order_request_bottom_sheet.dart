@@ -4,7 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -12,7 +13,9 @@ import '../../../domains/order_request/order_request_domain.dart';
 import '../../../core/colors.dart';
 import '../../../core/images.dart';
 import '../../../core/text_styles.dart';
+import '../../../interactors/common/mapbox_api/mapbox_api.dart';
 import '../../../utils/num_utils.dart';
+import '../../../utils/utils.dart';
 import '../../widgets/primary_bottom_sheet.dart';
 
 class OrderRequestBottomSheet extends StatefulWidget {
@@ -31,6 +34,15 @@ class OrderRequestBottomSheet extends StatefulWidget {
 }
 
 class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
+  late final MapboxMapController mapboxMapController;
+  Map<String, dynamic> route = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchActiveOrderRoute();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PrimaryBottomSheet(
@@ -80,18 +92,6 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: ShapeDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage("https://via.placeholder.com/48x48"),
-                      fit: BoxFit.cover,
-                    ),
-                    shape: OvalBorder(),
-                  ),
-                ),
-                const SizedBox(width: 10),
                 Expanded(
                   child: Container(
                     child: Column(
@@ -199,65 +199,88 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                 Container(
                   width: double.infinity,
                   height: 300,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        "https://via.placeholder.com/344x98",
-                      ),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  child: FlutterMap(
-                    options: MapOptions(
-                      initialCenter: LatLng(
+                  child: MapboxMap(
+                    accessToken:
+                        'sk.eyJ1IjoidmFuZGVydmFpeiIsImEiOiJjbTA1azhkNjEwNDF2MmtzNHA0eWJ3eTR0In0.cSGmIeLW1Wc44gyBBWJsYA',
+                    // myLocationEnabled: true,
+                    onMapCreated: (mapboxController) {
+                      setState(() {
+                        mapboxMapController = mapboxController;
+                      });
+                    },
+                    onStyleLoadedCallback: () {},
+                    myLocationRenderMode: MyLocationRenderMode.GPS,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
                         widget.orderRequest.lat.toDouble(),
                         widget.orderRequest.lng.toDouble(),
                       ),
+                      zoom: 7,
                     ),
-                    children: [
-                      openStreetMapTileLayer,
-                      MarkerLayer(
-                        // rotate: counterRotate,
-                        markers: [
-                          Marker(
-                            point: LatLng(
-                              widget.orderRequest.lat.toDouble(),
-                              widget.orderRequest.lng.toDouble(),
-                            ),
-                            width: 16,
-                            height: 16,
-                            alignment: Alignment.centerLeft,
-                            child: Icon(
-                              Icons.location_on_rounded,
-                              color: Colors.red,
-                            ),
-                          ),
-                          // Marker(
-                          //   point:
-                          //       LatLng(47.18664724067855, -1.5436768515939427),
-                          //   width: 64,
-                          //   height: 64,
-                          //   alignment: Alignment.centerRight,
-                          //   child: ColoredBox(
-                          //     color: Colors.pink,
-                          //     child: Align(
-                          //       alignment: Alignment.centerLeft,
-                          //       child: Text('<--'),
-                          //     ),
-                          //   ),
-                          // ),
-                          // Marker(
-                          //   point:
-                          //       LatLng(47.18664724067855, -1.5436768515939427),
-                          //   rotate: false,
-                          //   child: ColoredBox(color: Colors.black),
-                          // ),
-                        ],
-                      ),
-                      CurrentLocationLayer(),
-                    ],
                   ),
                 ),
+                // Container(
+                //   width: double.infinity,
+                //   height: 300,
+                //   decoration: BoxDecoration(
+                //     image: DecorationImage(
+                //       image: NetworkImage(
+                //         "https://via.placeholder.com/344x98",
+                //       ),
+                //       fit: BoxFit.fill,
+                //     ),
+                //   ),
+                //   child: FlutterMap(
+                //     options: MapOptions(
+                //       initialCenter: LatLng(
+                //         widget.orderRequest.lat.toDouble(),
+                //         widget.orderRequest.lng.toDouble(),
+                //       ),
+                //     ),
+                //     children: [
+                //       openStreetMapTileLayer,
+                //       MarkerLayer(
+                //         // rotate: counterRotate,
+                //         markers: [
+                //           Marker(
+                //             point: LatLng(
+                //               widget.orderRequest.lat.toDouble(),
+                //               widget.orderRequest.lng.toDouble(),
+                //             ),
+                //             width: 16,
+                //             height: 16,
+                //             alignment: Alignment.centerLeft,
+                //             child: Icon(
+                //               Icons.location_on_rounded,
+                //               color: Colors.red,
+                //             ),
+                //           ),
+                //           // Marker(
+                //           //   point:
+                //           //       LatLng(47.18664724067855, -1.5436768515939427),
+                //           //   width: 64,
+                //           //   height: 64,
+                //           //   alignment: Alignment.centerRight,
+                //           //   child: ColoredBox(
+                //           //     color: Colors.pink,
+                //           //     child: Align(
+                //           //       alignment: Alignment.centerLeft,
+                //           //       child: Text('<--'),
+                //           //     ),
+                //           //   ),
+                //           // ),
+                //           // Marker(
+                //           //   point:
+                //           //       LatLng(47.18664724067855, -1.5436768515939427),
+                //           //   rotate: false,
+                //           //   child: ColoredBox(color: Colors.black),
+                //           // ),
+                //         ],
+                //       ),
+                //       CurrentLocationLayer(),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -394,6 +417,60 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
           ),
           const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+
+  void fetchActiveOrderRoute() async {
+    String? sessionId = inject<SharedPreferences>().getString('sessionId');
+
+    final fromAddress = await inject<MapboxApi>().getPlaceDetail(
+      mapboxId: widget.orderRequest.fromMapboxId,
+      sessionToken: sessionId ?? '',
+    );
+    final toAddress = await inject<MapboxApi>().getPlaceDetail(
+      mapboxId: widget.orderRequest.toMapboxId,
+      sessionToken: sessionId ?? '',
+    );
+
+    final directions = await inject<MapboxApi>().getDirections(
+      fromLat: fromAddress.features![0].properties!.coordinates!['latitude'],
+      fromLng: fromAddress.features![0].properties!.coordinates!['longitude'],
+      toLat: toAddress.features![0].properties!.coordinates!['latitude'],
+      toLng: toAddress.features![0].properties!.coordinates!['longitude'],
+    );
+
+    setState(() {
+      route = directions;
+    });
+
+    await mapboxMapController.removeLayer('lines');
+    await mapboxMapController.removeSource('fills');
+
+    await mapboxMapController.addSource(
+      'fills',
+      GeojsonSourceProperties(
+        data: {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "id": 0,
+              "properties": <String, dynamic>{},
+              "geometry": route['routes'][0]['geometry'],
+            }
+          ],
+        },
+      ),
+    );
+    await mapboxMapController.addLineLayer(
+      "fills",
+      "lines",
+      LineLayerProperties(
+        lineColor: primaryColor.toHexStringRGB(),
+        lineCap: "round",
+        lineJoin: "round",
+        lineWidth: 2,
       ),
     );
   }

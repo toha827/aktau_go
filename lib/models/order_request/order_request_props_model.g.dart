@@ -27,6 +27,8 @@ OrderRequestPropsModel _$OrderRequestPropsModelFromJson(
       orderStatus: json['orderStatus'] as String?,
       from: json['from'] as String?,
       to: json['to'] as String?,
+      fromMapboxId: json['fromMapboxId'] as String?,
+      toMapboxId: json['toMapboxId'] as String?,
       startTime: json['startTime'] == null
           ? null
           : DateTime.parse(json['startTime'] as String),
@@ -54,6 +56,8 @@ Map<String, dynamic> _$OrderRequestPropsModelToJson(
       'orderStatus': instance.orderStatus,
       'from': instance.from,
       'to': instance.to,
+      'fromMapboxId': instance.fromMapboxId,
+      'toMapboxId': instance.toMapboxId,
       'startTime': instance.startTime?.toIso8601String(),
       'arrivalTime': instance.arrivalTime?.toIso8601String(),
       'lat': instance.lat,

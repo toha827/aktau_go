@@ -21,6 +21,8 @@ OrderRequestDomain orderRequestMapper(
       orderStatus: model.props?.orderStatus,
       from: model.props?.from,
       to: model.props?.to,
+      fromMapboxId: model.props?.fromMapboxId,
+      toMapboxId: model.props?.toMapboxId,
       lat: model.props?.lat,
       lng: model.props?.lng,
       price: model.props?.price,

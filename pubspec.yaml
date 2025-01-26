@@ -49,11 +49,11 @@ dependencies:
   elementary_helper: ^1.0.2
   formz: ^0.7.0
   equatable: ^2.0.5
-  mapbox_maps_flutter: ^2.3.0
+#  mapbox_maps_flutter: ^2.3.0
   url_launcher: ^6.3.0
   slider_button: ^2.1.0
   action_slider: ^0.7.0
-  flutter_map: ^7.0.2
+#  flutter_map: ^7.0.2
   flutter_map_cancellable_tile_provider: ^3.0.0
   latlong2: ^0.9.1
   flutter_map_location_marker: ^9.1.0
@@ -70,9 +70,14 @@ dependencies:
   lottie: ^3.1.3
   flutter_rating_stars: ^1.1.0
   flutter_compass: ^0.8.0
-  flutter_launcher_icons: ^0.14.1
+#  flutter_launcher_icons: ^0.14.1
   pretty_animated_buttons: ^0.0.2
   scroll_to_index: ^3.0.1
+  location: ^6.0.2
+  uuid: ^4.5.1
+  easy_autocomplete: ^1.6.0
+  mapbox_gl:
+    git: https://github.com/flutter-mapbox-gl/maps.git
 
 dev_dependencies:
   flutter_test:
@@ -90,7 +95,7 @@ dev_dependencies:
   injectable: ^2.3.5
   logger: ^2.4.0
   injectable_generator: ^2.4.2
-  flutter_native_splash: ^2.4.2
+#  flutter_native_splash: ^2.4.2
   rename: ^3.0.2
 
 # For information on the generic Dart part of this file, see the

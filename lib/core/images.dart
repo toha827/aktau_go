@@ -1,4 +1,5 @@
 const String _icons = 'assets/icons/';
+const String _images = 'assets/images/';
 
 /// Bottom navigation icons
 const String icOrders = '${_icons}orders.svg';
@@ -20,3 +21,6 @@ const String icCall = '${_icons}call.svg';
 const String icTaxi = '${_icons}taxi.svg';
 const String icPlacemark = '${_icons}placemark.svg';
 const String icPlacemarkError = '${_icons}location-cross.svg';
+const String imgNotification = '${_images}notification.png';
+const String imgNotificationBg = '${_images}notification_bg.png';
+const String imgLocationBg = '${_images}location.png';

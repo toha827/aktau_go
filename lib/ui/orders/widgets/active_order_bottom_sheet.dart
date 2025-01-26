@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:aktau_go/domains/active_request/active_request_domain.dart';
 import 'package:aktau_go/domains/user/user_domain.dart';
+import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart';
 import 'package:aktau_go/interactors/order_requests_interactor.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
+import 'package:aktau_go/utils/logger.dart';
 import 'package:aktau_go/utils/num_utils.dart';
 import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary_helper/elementary_helper.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_ti
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../core/colors.dart';
@@ -41,6 +44,8 @@ class ActiveOrderBottomSheet extends StatefulWidget {
 class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   late ActiveRequestDomain activeRequest = widget.activeOrder;
 
+  List<Polyline> polylines = [];
+
   int waitingTimerLeft = 180;
 
   Timer? waitingTimer;
@@ -61,7 +66,31 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
 
       activeRequest = response;
 
+      String? sessionId = inject<SharedPreferences>().getString('sessionId');
       setState(() {});
+      final fromAddress = await inject<MapboxApi>().getPlaceDetail(
+        mapboxId: response.orderRequest!.fromMapboxId,
+        sessionToken: sessionId ?? '',
+      );
+      final toAddress = await inject<MapboxApi>().getPlaceDetail(
+        mapboxId: response.orderRequest!.toMapboxId,
+        sessionToken: sessionId ?? '',
+      );
+
+      final directions = await inject<MapboxApi>().getDirections(
+        fromLat: fromAddress.features![0].properties!.coordinates!['latitude'],
+        fromLng: fromAddress.features![0].properties!.coordinates!['longitude'],
+        toLat: toAddress.features![0].properties!.coordinates!['latitude'],
+        toLng: toAddress.features![0].properties!.coordinates!['longitude'],
+      );
+
+      logger.w(directions['routes'][0]['geometry']);
+
+      // polylines = [
+      //   Polyline(
+      //     points: directions['routes'][0]['geometry'],
+      //   )
+      // ];
     } on Exception catch (e) {
       setState(() {
         isOrderFinished = true;
@@ -382,7 +411,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                              child:  FlutterMap(
+                              child: FlutterMap(
                                 // mapController: wm.mapboxMapController,
                                 options: MapOptions(
                                   initialCenter: LatLng(
@@ -392,14 +421,17 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                 ),
                                 children: [
                                   openStreetMapTileLayer,
+                                  PolylineLayer(polylines: polylines),
                                   MarkerLayer(
                                     // rotate: counterRotate,
                                     markers: [
                                       if (activeRequest.orderRequest != null)
                                         Marker(
                                           point: LatLng(
-                                            activeRequest.orderRequest!.lat.toDouble(),
-                                            activeRequest.orderRequest!.lng.toDouble(),
+                                            activeRequest.orderRequest!.lat
+                                                .toDouble(),
+                                            activeRequest.orderRequest!.lng
+                                                .toDouble(),
                                           ),
                                           width: 16,
                                           height: 16,
@@ -714,11 +746,10 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   }
 }
 
-
 TileLayer get openStreetMapTileLayer => TileLayer(
-  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-  // Use the recommended flutter_map_cancellable_tile_provider package to
-  // support the cancellation of loading tiles.
-  tileProvider: CancellableNetworkTileProvider(),
-);
+      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+      // Use the recommended flutter_map_cancellable_tile_provider package to
+      // support the cancellation of loading tiles.
+      tileProvider: CancellableNetworkTileProvider(),
+    );

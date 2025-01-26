@@ -247,6 +247,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
       await initializeSocket();
     } on Exception catch (e) {
+      fetchUserProfile();
       logger.e(e);
     }
   }
@@ -344,51 +345,50 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
             context: context,
             isDismissible: true,
             isScrollControlled: true,
-            builder: (context) =>
-                PrimaryBottomSheet(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      Center(
-                        child: Container(
-                          width: 38,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: greyscale30,
-                            borderRadius: BorderRadius.circular(1.4),
-                          ),
-                        ),
+            builder: (context) => PrimaryBottomSheet(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: greyscale30,
+                        borderRadius: BorderRadius.circular(1.4),
                       ),
-                      const SizedBox(height: 24),
-                      SvgPicture.asset(icPlacemarkError),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          'Поездка отклонена',
-                          style: text500Size20Greyscale90,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: PrimaryButton.primary(
-                          onPressed: () async {
-                            isOrderRejected.accept(false);
-                            fetchActiveOrder(
-                              openBottomSheet: false,
-                            );
-                            Navigator.of(context).pop();
-                          },
-                          text: 'Закрыть',
-                          textStyle: text400Size16White,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  SvgPicture.asset(icPlacemarkError),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      'Поездка отклонена',
+                      style: text500Size20Greyscale90,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton.primary(
+                      onPressed: () async {
+                        isOrderRejected.accept(false);
+                        fetchActiveOrder(
+                          openBottomSheet: false,
+                        );
+                        Navigator.of(context).pop();
+                      },
+                      text: 'Закрыть',
+                      textStyle: text400Size16White,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
           );
         }
         // showNewOrders.accept(true);

@@ -52,8 +52,12 @@ class OrderRequestDomain {
         orderStatus = orderStatus ?? '',
         from = from ?? '',
         to = to ?? '',
-        fromMapboxId = fromMapboxId ?? '',
-        toMapboxId = toMapboxId ?? '',
+        fromMapboxId = (comment ?? '').split(';').length > 1
+            ? (comment ?? '').split(';')[1]
+            : fromMapboxId ?? '',
+        toMapboxId = (comment ?? '').split(';').length > 1
+            ? (comment ?? '').split(';')[2]
+            : toMapboxId ?? '',
         lat = lat ?? 0,
         lng = lng ?? 0,
         price = price ?? 0,

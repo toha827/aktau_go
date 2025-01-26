@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:aktau_go/core/images.dart';
+import 'package:aktau_go/interactors/main_navigation_interactor.dart';
+import 'package:aktau_go/ui/basket/forms/food_order_form.dart';
 import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +12,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart' as geoLocator;
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -39,6 +42,7 @@ defaultTenantHomeWMFactory(BuildContext context) => TenantHomeWM(
         inject<FoodInteractor>(),
         inject<ProfileInteractor>(),
         inject<OrderRequestsInteractor>(),
+        inject<MainNavigationInteractor>(),
       ),
     );
 
@@ -77,8 +81,6 @@ abstract class ITenantHomeWM implements IWidgetModel {
     bool force = false,
   });
 
-  void onMapCreated(MapboxMap controller);
-
   void tabIndexChanged(int newTabIndex);
 
   Future<void> onSubmit(DriverOrderForm form, DriverType taxi);
@@ -88,6 +90,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
   void getMyLocation();
 
   void scrollDraggableSheetDown();
+
+  void onMapTapped(TapPosition tapPosition, LatLng point);
 }
 
 class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
@@ -185,12 +189,12 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
           data.longitude,
         ),
       );
-      mapboxMapController.move(
-          LatLng(
-            userLocation.value!.latitude,
-            userLocation.value!.longitude,
-          ),
-          17);
+      // mapboxMapController.move(
+      //     LatLng(
+      //       userLocation.value!.latitude,
+      //       userLocation.value!.longitude,
+      //     ),
+      //     17);
 
       _checkLocation();
     });
@@ -226,13 +230,13 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       if (aktauDistanceInMeters <= 40000) {
         idshop = 9;
       } else {
-        logger.w(aktauDistanceInMeters);
+        // logger.w(aktauDistanceInMeters);
       }
 
       if (zhanaOzenDistanceInMeters <= 40000) {
         idshop = 13;
       } else {
-        logger.w(zhanaOzenDistanceInMeters);
+        // logger.w(zhanaOzenDistanceInMeters);
       }
       if (idshop != -1) {
         showFood.accept(true);
@@ -290,35 +294,6 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   }
 
   @override
-  Future<void> onMapCreated(MapboxMap controller) async {
-    determineLocationPermission();
-
-    if (userLocation.value != null) {
-      mapboxMapController.move(
-          LatLng(
-            userLocation.value!.latitude,
-            userLocation.value!.longitude,
-          ),
-          17);
-    }
-
-    // mapboxMapController.value?.flyTo(
-    //   CameraOptions(
-    //     center: Point(
-    //       coordinates: Position(
-    //         location.longitude,
-    //         location.latitude,
-    //       ),
-    //     ),
-    //     zoom: 17,
-    //     bearing: 180,
-    //     pitch: 30,
-    //   ),
-    //   MapAnimationOptions(duration: 2000, startDelay: 0),
-    // );
-  }
-
-  @override
   void tabIndexChanged(int newTabIndex) {
     currentTab.accept(newTabIndex);
     if (newTabIndex == 1) {
@@ -360,7 +335,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       "lat": userLocation.value?.latitude,
       "price": form.cost.value,
       "orderType": taxi.key,
-      "comment": form.comment,
+      "comment":
+          '${form.comment};${form.fromMapboxId.value};${form.toMapboxId.value}',
+      "fromMapboxId": form.fromMapboxId.value,
+      "toMapboxId": form.toMapboxId.value,
     });
 
     fetchActiveOrder();
@@ -494,9 +472,17 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
       newOrderSocket?.on('driverLocation', (data) {
         print('Received new order: $data');
-        driverLocation.accept(LatLng(data['lat'], data['lng']));
+        LatLng point;
+        if (data['lat'] is String) {
+          point = LatLng(double.tryParse(data['lat']) ?? 0,
+              double.tryParse(data['lng']) ?? 0);
+        } else {
+          point = LatLng(data['lat'], data['lng']);
+        }
+        driverLocation.accept(point);
 
-        mapboxMapController.move(LatLng(data['lat'], data['lng']), 17);
+        mapboxMapController.move(point, 17);
+
         // fetchActiveOrder();
       });
 
@@ -713,11 +699,33 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   @override
   Future<void> getMyLocation() async {
     await determineLocationPermission();
-    // var location = await geoLocator.Geolocator.getCurrentPosition(
-    //   locationSettings: geoLocator.LocationSettings(
-    //     accuracy: geoLocator.LocationAccuracy.bestForNavigation,
-    //   ),
-    // );
+    try {
+      if (Platform.isAndroid) {
+        var location = await geoLocator.Geolocator.getCurrentPosition(
+          locationSettings: geoLocator.LocationSettings(
+            accuracy: geoLocator.LocationAccuracy.bestForNavigation,
+          ),
+        );
+
+        mapboxMapController.move(
+            LatLng(
+              location.latitude,
+              location.longitude,
+            ),
+            12);
+      } else {
+        var location = await geoLocator.Geolocator.getLastKnownPosition();
+
+        mapboxMapController.move(
+            LatLng(
+              location!.latitude,
+              location!.longitude,
+            ),
+            12);
+      }
+    } on Exception catch (e) {
+      logger.e(e);
+    }
 
     // userLocation.accept(
     //   LatLng(
@@ -725,23 +733,15 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     //     location.longitude,
     //   ),
     // );
-
-    geoLocator.Geolocator.getPositionStream(
-      locationSettings: geoLocator.LocationSettings(
-        accuracy: geoLocator.LocationAccuracy.bestForNavigation,
-      ),
-    ).listen((data) {
-      mapboxMapController.move(
-          LatLng(
-            data.latitude,
-            data.longitude,
-          ),
-          17);
-    });
   }
 
   @override
   void scrollDraggableSheetDown() {
     draggableScrollableController.jumpTo(1);
+  }
+
+  @override
+  void onMapTapped(TapPosition tapPosition, LatLng point) {
+    model.onMapTapped(tapPosition, point);
   }
 }

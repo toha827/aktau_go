@@ -64,9 +64,10 @@ abstract class MapboxApi {
   @GET(
     "geocoding/v5/mapbox.places/{longitude},{latitude}.json",
   )
-  Future<MapboxGeoCodingResponse> geoCoding({
+  Future<MapboxFeatureDetailResponse> geoCoding({
     @Path('longitude') required double longitude,
     @Path('latitude') required double latitude,
-    @Query('access_token') required String accessToken,
+    @Query('access_token') String accessToken =
+        'pk.eyJ1IjoidmFuZGVydmFpeiIsImEiOiJjbGRpbTJvcHEwOHR4M25td203cDA0aXdrIn0.mP_I0HQ84N1-SLmgnU6XUQ',
   });
 }

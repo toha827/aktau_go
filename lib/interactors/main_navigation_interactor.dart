@@ -3,6 +3,8 @@ import 'package:elementary/elementary.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:injectable/injectable.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class IMainNavigationInteractor {
   StateNotifier<bool> get doubleTappedListener;
@@ -13,6 +15,8 @@ abstract class IMainNavigationInteractor {
 
   StateNotifier<int> get myAdsSubTab;
 
+  StateNotifier<LatLng> get lastMapTapped;
+
   PageController get pageController;
 
   void changeTab(int newTab);
@@ -20,6 +24,8 @@ abstract class IMainNavigationInteractor {
   void doubleTapped();
 
   void changeMyAdsSubTab(int newTab);
+
+  void onMapTapped(TapPosition tapPosition, LatLng point);
 }
 
 @singleton
@@ -69,5 +75,13 @@ class MainNavigationInteractor extends IMainNavigationInteractor {
   final StateNotifier<int> myAdsSubTab = StateNotifier(initValue: 0);
 
   @override
+  final StateNotifier<LatLng> lastMapTapped = StateNotifier();
+
+  @override
   final PageController pageController = PageController();
+
+  @override
+  void onMapTapped(TapPosition tapPosition, LatLng point) {
+    lastMapTapped.accept(point);
+  }
 }

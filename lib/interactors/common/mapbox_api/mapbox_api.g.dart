@@ -135,17 +135,18 @@ class _MapboxApi implements MapboxApi {
   }
 
   @override
-  Future<MapboxGeoCodingResponse> geoCoding({
+  Future<MapboxFeatureDetailResponse> geoCoding({
     required double longitude,
     required double latitude,
-    required String accessToken,
+    String accessToken =
+        'pk.eyJ1IjoidmFuZGVydmFpeiIsImEiOiJjbGRpbTJvcHEwOHR4M25td203cDA0aXdrIn0.mP_I0HQ84N1-SLmgnU6XUQ',
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'access_token': accessToken};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<MapboxGeoCodingResponse>(Options(
+        _setStreamType<MapboxFeatureDetailResponse>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -161,7 +162,7 @@ class _MapboxApi implements MapboxApi {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    final value = MapboxGeoCodingResponse.fromJson(_result.data!);
+    final value = MapboxFeatureDetailResponse.fromJson(_result.data!);
     return value;
   }
 

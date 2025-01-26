@@ -122,6 +122,7 @@ class ContextModel {
 class PropertiesModel {
   String? shortCode;
   String? wikidata;
+  @JsonKey(name: 'mapbox_id')
   String? mapboxId;
   String? full_address;
   Map<String, dynamic>? coordinates;

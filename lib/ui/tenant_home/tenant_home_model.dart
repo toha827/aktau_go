@@ -1,5 +1,8 @@
+import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/interactors/profile_interactor.dart';
 import 'package:elementary/elementary.dart';
+import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../domains/active_request/active_request_domain.dart';
 import '../../domains/food/foods_response_domain.dart';
@@ -12,11 +15,13 @@ class TenantHomeModel extends ElementaryModel {
   final FoodInteractor _foodInteractor;
   final ProfileInteractor _profileInteractor;
   final OrderRequestsInteractor _orderRequestsInteractor;
+  final MainNavigationInteractor _mainNavigationInteractor;
 
   TenantHomeModel(
     this._foodInteractor,
     this._profileInteractor,
     this._orderRequestsInteractor,
+    this._mainNavigationInteractor,
   ) : super();
 
   Future<FoodsResponseDomain> fetchFoods() => _foodInteractor.fetchFoods();
@@ -32,4 +37,8 @@ class TenantHomeModel extends ElementaryModel {
       _orderRequestsInteractor.rejectOrderByClientRequest(
         orderRequestId: orderRequestId,
       );
+
+  void onMapTapped(TapPosition tapPosition, LatLng point) {
+    _mainNavigationInteractor.onMapTapped(tapPosition, point);
+  }
 }

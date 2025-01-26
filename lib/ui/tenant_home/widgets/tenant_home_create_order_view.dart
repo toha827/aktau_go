@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:aktau_go/core/colors.dart';
 import 'package:aktau_go/core/text_styles.dart';
 import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart';
+import 'package:aktau_go/interactors/common/rest_client.dart';
+import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/models/mapbox/mapbox_feature_model.dart';
 import 'package:aktau_go/ui/tenant_home/forms/driver_order_form.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
@@ -15,6 +17,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/v4.dart';
 
@@ -103,6 +106,45 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
       });
     },
   );
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      inject<MainNavigationInteractor>().lastMapTapped.addListener(() async {
+        LatLng point = inject<MainNavigationInteractor>().lastMapTapped.value!;
+        final response = await inject<MapboxApi>().geoCoding(
+          longitude: point.longitude,
+          latitude: point.latitude,
+        );
+
+        if (!driverOrderForm.toMapboxId.isPure ||
+            driverOrderForm.fromMapboxId.isPure) {
+          setState(() {
+            fromAddressTextController.text =
+                response.features?.first.text ?? "";
+            driverOrderForm = driverOrderForm.copyWith(
+              fromMapboxId:
+                  Required.dirty(response.features!.first.properties?.mapboxId),
+            );
+            toAddressTextController.text = '';
+            driverOrderForm = driverOrderForm.copyWith(
+              toMapboxId: Required.pure(),
+            );
+          });
+        } else {
+          setState(() {
+            toAddressTextController.text = response.features?.first.text ?? "";
+            driverOrderForm = driverOrderForm.copyWith(
+              toMapboxId:
+                  Required.dirty(response.features!.first.properties?.mapboxId),
+            );
+          });
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

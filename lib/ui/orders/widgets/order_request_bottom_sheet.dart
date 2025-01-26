@@ -467,7 +467,7 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
       "fills",
       "lines",
       LineLayerProperties(
-        lineColor: primaryColor.toHexStringRGB(),
+        lineColor: Colors.purpleAccent.toHexStringRGB(),
         lineCap: "round",
         lineJoin: "round",
         lineWidth: 2,

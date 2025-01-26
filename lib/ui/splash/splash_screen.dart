@@ -71,7 +71,9 @@ class _SplashScreenState extends State<SplashScreen> {
     SharedPreferences storage = await SharedPreferences.getInstance();
     await getIt<SessionInteractor>().checkAccessTokenExpired();
 
-    bool showSplashScreen = storage.getBool(SHOW_ONBOARDING) ?? true;
+    bool showSplashScreen =
+        !((storage.getBool(NOTIFICATION_PERMISSION_GRANTED) ?? true) ||
+            (storage.getBool(LOCATION_PERMISSION_GRANTED) ?? true));
 
     if (showSplashScreen) {
       Routes.router.navigate(

@@ -127,7 +127,7 @@ PropertiesModel _$PropertiesModelFromJson(Map<String, dynamic> json) =>
     PropertiesModel(
       shortCode: json['shortCode'] as String?,
       wikidata: json['wikidata'] as String?,
-      mapboxId: json['mapboxId'] as String?,
+      mapboxId: json['mapbox_id'] as String?,
       full_address: json['full_address'] as String?,
       coordinates: json['coordinates'] as Map<String, dynamic>?,
     );
@@ -136,7 +136,7 @@ Map<String, dynamic> _$PropertiesModelToJson(PropertiesModel instance) =>
     <String, dynamic>{
       'shortCode': instance.shortCode,
       'wikidata': instance.wikidata,
-      'mapboxId': instance.mapboxId,
+      'mapbox_id': instance.mapboxId,
       'full_address': instance.full_address,
       'coordinates': instance.coordinates,
     };

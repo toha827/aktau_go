@@ -94,8 +94,8 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                   width: 24,
                                   height: 24,
                                   alignment: Alignment.centerLeft,
-                                  child: Image.asset(
-                                    'assets/images/car.png',
+                                  child: SvgPicture.asset(
+                                    icTaxi,
                                     color: primaryColor,
                                   ),
                                 ),
@@ -356,110 +356,106 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                                                   ],
                                                 ),
                                                 const SizedBox(height: 24),
-                                                if (showFood == true)
-                                                  [
-                                                    TenantHomeCreateOrderView(
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(form,
-                                                              DriverType.TAXI),
-                                                    ),
-                                                    EntityStateNotifierBuilder(
-                                                      listenableEntityState:
-                                                          wm.foods,
-                                                      builder: (
-                                                        context,
-                                                        List<FoodDomain>? foods,
-                                                      ) {
-                                                        return StateNotifierBuilder(
-                                                          listenableState:
-                                                              wm.foodCategories,
-                                                          builder: (
-                                                            context,
-                                                            List<FoodCategoryDomain>?
-                                                                foodCategories,
-                                                          ) {
-                                                            return TenantHomeFoodsView(
-                                                              scrollController:
-                                                                  scrollController,
-                                                              onScrollDown: wm
-                                                                  .scrollDraggableSheetDown,
-                                                              foods:
-                                                                  foods ?? [],
-                                                              foodCategories:
-                                                                  foodCategories ??
-                                                                      [],
-                                                            );
-                                                          },
-                                                        );
-                                                      },
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      isIntercity: false,
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(
-                                                              form,
-                                                              DriverType
-                                                                  .DELIVERY),
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(form,
-                                                              DriverType.CARGO),
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      isIntercity: true,
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(
-                                                              form,
-                                                              DriverType
-                                                                  .INTERCITY_TAXI),
-                                                    ),
-                                                  ][currentTab!]
-                                                else
-                                                  [
-                                                    TenantHomeCreateOrderView(
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(form,
-                                                              DriverType.TAXI),
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      isIntercity: false,
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(
-                                                              form,
-                                                              DriverType
-                                                                  .DELIVERY),
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(form,
-                                                              DriverType.CARGO),
-                                                    ),
-                                                    TenantHomeCreateOrderView(
-                                                      isIntercity: true,
-                                                      scrollController:
-                                                          scrollController,
-                                                      onSubmit: (form) =>
-                                                          wm.onSubmit(
-                                                              form,
-                                                              DriverType
-                                                                  .INTERCITY_TAXI),
-                                                    ),
-                                                  ][currentTab!],
+                                                if (showFood == true) [
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.TAXI),
+                                                  ),
+                                                  EntityStateNotifierBuilder(
+                                                    listenableEntityState:
+                                                        wm.foods,
+                                                    builder: (
+                                                      context,
+                                                      List<FoodDomain>? foods,
+                                                    ) {
+                                                      return StateNotifierBuilder(
+                                                        listenableState:
+                                                            wm.foodCategories,
+                                                        builder: (
+                                                          context,
+                                                          List<FoodCategoryDomain>?
+                                                              foodCategories,
+                                                        ) {
+                                                          return TenantHomeFoodsView(
+                                                            scrollController:
+                                                                scrollController,
+                                                            onScrollDown: wm
+                                                                .scrollDraggableSheetDown,
+                                                            foods: foods ?? [],
+                                                            foodCategories:
+                                                                foodCategories ??
+                                                                    [],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    isIntercity: false,
+                                                    scrollController:
+                                                    scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(
+                                                            form,
+                                                            DriverType
+                                                                .DELIVERY),
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.CARGO),
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    isIntercity: true,
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(
+                                                            form,
+                                                            DriverType
+                                                                .INTERCITY_TAXI),
+                                                  ),
+                                                ][currentTab!] else [
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.TAXI),
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    isIntercity: false,
+                                                    scrollController:
+                                                    scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(
+                                                            form,
+                                                            DriverType
+                                                                .DELIVERY),
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(form,
+                                                            DriverType.CARGO),
+                                                  ),
+                                                  TenantHomeCreateOrderView(
+                                                    isIntercity: true,
+                                                    scrollController:
+                                                        scrollController,
+                                                    onSubmit: (form) =>
+                                                        wm.onSubmit(
+                                                            form,
+                                                            DriverType
+                                                                .INTERCITY_TAXI),
+                                                  ),
+                                                ][currentTab!],
                                               ],
                                             ),
                                           );

@@ -1,13 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:injectable/injectable.dart';
+import 'package:geolocator/geolocator.dart' as geoLocator;
 
 abstract class ILocationInteractor {
-  StateNotifier<PermissionStatus> get locationStatus;
+  StateNotifier<geoLocator.LocationPermission> get locationStatus;
 
   StateNotifier<bool> get locationServiceEnabled;
 
@@ -27,7 +29,8 @@ class LocationInteractor extends ILocationInteractor {
   late StreamSubscription<LocationData> onUserLocationChanged;
 
   @override
-  final StateNotifier<PermissionStatus> locationStatus = StateNotifier();
+  final StateNotifier<geoLocator.LocationPermission> locationStatus =
+      StateNotifier();
 
   @override
   StateNotifier<bool> locationServiceEnabled = StateNotifier(
@@ -42,7 +45,7 @@ class LocationInteractor extends ILocationInteractor {
   ));
 
   @override
-  Future<PermissionStatus?> requestLocation() async {
+  Future<geoLocator.LocationPermission?> requestLocation() async {
     Location _location = Location();
 
     bool? _locationServiceEnabled = await _location.serviceEnabled();
@@ -50,17 +53,33 @@ class LocationInteractor extends ILocationInteractor {
       _locationServiceEnabled = await _location.requestService();
     }
 
-    PermissionStatus? _permissionGranted = await _location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await _location.requestPermission();
+    geoLocator.LocationPermission? _permissionGranted =
+        await geoLocator.Geolocator.checkPermission();
+    if (_permissionGranted == geoLocator.LocationPermission.denied) {
+      _permissionGranted = await geoLocator.Geolocator.requestPermission();
     }
+    LatLng currentLLatLng;
 
     /// Get capture the current user location
-    LocationData _locationData = await _location.getLocation();
-    LatLng currentLLatLng = LatLng(
-      _locationData.latitude!,
-      _locationData.longitude!,
-    );
+    if (Platform.isAndroid) {
+      geoLocator.Position position =
+          await geoLocator.Geolocator.getCurrentPosition(
+        locationSettings: geoLocator.LocationSettings(
+          accuracy: geoLocator.LocationAccuracy.bestForNavigation,
+        ),
+      );
+      currentLLatLng = LatLng(
+        position.latitude,
+        position.longitude,
+      );
+    } else {
+      var position = await geoLocator.Geolocator.getLastKnownPosition();
+      currentLLatLng = LatLng(
+        position?.latitude ?? 0,
+        position?.longitude ?? 0,
+      );
+    }
+    // LocationData _locationData = await _location.getLocation();
 
     sharedPreferences.setDouble('latitude', currentLLatLng.latitude);
     sharedPreferences.setDouble('longitude', currentLLatLng.longitude);

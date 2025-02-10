@@ -113,7 +113,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
 
   @override
   final StateNotifier<double> draggableMaxChildSize = StateNotifier(
-    initValue: 0.6,
+    initValue: 1,
   );
 
   @override
@@ -340,7 +340,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       "fromMapboxId": form.fromMapboxId.value,
       "toMapboxId": form.toMapboxId.value,
     });
-
+    draggableScrollableController.jumpTo(0.3);
     fetchActiveOrder();
   }
 

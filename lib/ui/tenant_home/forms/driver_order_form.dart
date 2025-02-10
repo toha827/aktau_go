@@ -22,9 +22,9 @@ class DriverOrderForm with EquatableMixin, FormzMixin {
   @override
   List<FormzInput> get inputs => [
         fromAddress,
-        fromMapboxId,
+        // fromMapboxId,
         toAddress,
-        toMapboxId,
+        // toMapboxId,
         cost,
       ];
 

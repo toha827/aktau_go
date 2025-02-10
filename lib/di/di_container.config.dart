@@ -8,23 +8,25 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:aktau_go/interactors/authorization_interactor.dart' as _i15;
-import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart' as _i12;
-import 'package:aktau_go/interactors/common/rest_client.dart' as _i13;
-import 'package:aktau_go/interactors/food_interactor.dart' as _i16;
+import 'package:aktau_go/interactors/authorization_interactor.dart' as _i16;
+import 'package:aktau_go/interactors/common/map_tiler_cloud_api/map_tiler_cloud_api.dart'
+    as _i12;
+import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart' as _i13;
+import 'package:aktau_go/interactors/common/rest_client.dart' as _i14;
+import 'package:aktau_go/interactors/food_interactor.dart' as _i17;
 import 'package:aktau_go/interactors/location_interactor.dart' as _i11;
-import 'package:aktau_go/interactors/main_navigation_interactor.dart' as _i17;
+import 'package:aktau_go/interactors/main_navigation_interactor.dart' as _i18;
 import 'package:aktau_go/interactors/notification_interactor.dart' as _i6;
-import 'package:aktau_go/interactors/order_requests_interactor.dart' as _i18;
-import 'package:aktau_go/interactors/profile_interactor.dart' as _i19;
-import 'package:aktau_go/interactors/session_interactor.dart' as _i14;
+import 'package:aktau_go/interactors/order_requests_interactor.dart' as _i19;
+import 'package:aktau_go/interactors/profile_interactor.dart' as _i20;
+import 'package:aktau_go/interactors/session_interactor.dart' as _i15;
 import 'package:aktau_go/modules/dio/base/material_message_controller.dart'
     as _i5;
 import 'package:aktau_go/modules/dio/base/standard_error_handler.dart' as _i8;
 import 'package:aktau_go/modules/dio/dio_module.dart' as _i10;
 import 'package:aktau_go/modules/flavor/flavor.dart' as _i3;
 import 'package:aktau_go/modules/flavor/flavor_interactor.dart' as _i4;
-import 'package:aktau_go/modules/shared_preferences_module.dart' as _i20;
+import 'package:aktau_go/modules/shared_preferences_module.dart' as _i21;
 import 'package:dio/dio.dart' as _i9;
 import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
@@ -74,27 +76,28 @@ Future<_i1.GetIt> init(
   gh.singleton<_i10.DioInteractor>(() => _i10.DioInteractor(gh<_i9.Dio>()));
   gh.singleton<_i11.LocationInteractor>(
       () => _i11.LocationInteractor(gh<_i7.SharedPreferences>()));
-  gh.factory<_i12.MapboxApi>(() => _i12.MapboxApi(gh<_i9.Dio>()));
-  gh.singleton<_i13.RestClient>(() => _i13.RestClient(gh<_i9.Dio>()));
-  gh.lazySingleton<_i14.SessionInteractor>(() => _i14.SessionInteractor(
+  gh.factory<_i12.MapTilerCloudApi>(() => _i12.MapTilerCloudApi(gh<_i9.Dio>()));
+  gh.factory<_i13.MapboxApi>(() => _i13.MapboxApi(gh<_i9.Dio>()));
+  gh.singleton<_i14.RestClient>(() => _i14.RestClient(gh<_i9.Dio>()));
+  gh.lazySingleton<_i15.SessionInteractor>(() => _i15.SessionInteractor(
         gh<_i7.SharedPreferences>(),
-        gh<_i13.RestClient>(),
+        gh<_i14.RestClient>(),
       ));
-  gh.singleton<_i15.AuthorizationInteractor>(() => _i15.AuthorizationInteractor(
-        gh<_i13.RestClient>(),
-        gh<_i14.SessionInteractor>(),
+  gh.singleton<_i16.AuthorizationInteractor>(() => _i16.AuthorizationInteractor(
+        gh<_i14.RestClient>(),
+        gh<_i15.SessionInteractor>(),
       ));
-  gh.singleton<_i16.FoodInteractor>(
-      () => _i16.FoodInteractor(gh<_i13.RestClient>()));
-  gh.singleton<_i17.MainNavigationInteractor>(
-      () => _i17.MainNavigationInteractor(gh<_i14.SessionInteractor>()));
-  gh.singleton<_i18.OrderRequestsInteractor>(
-      () => _i18.OrderRequestsInteractor(gh<_i13.RestClient>()));
-  gh.singleton<_i19.ProfileInteractor>(
-      () => _i19.ProfileInteractor(gh<_i13.RestClient>()));
+  gh.singleton<_i17.FoodInteractor>(
+      () => _i17.FoodInteractor(gh<_i14.RestClient>()));
+  gh.singleton<_i18.MainNavigationInteractor>(
+      () => _i18.MainNavigationInteractor(gh<_i15.SessionInteractor>()));
+  gh.singleton<_i19.OrderRequestsInteractor>(
+      () => _i19.OrderRequestsInteractor(gh<_i14.RestClient>()));
+  gh.singleton<_i20.ProfileInteractor>(
+      () => _i20.ProfileInteractor(gh<_i14.RestClient>()));
   return getIt;
 }
 
-class _$SharedPreferencesModule extends _i20.SharedPreferencesModule {}
+class _$SharedPreferencesModule extends _i21.SharedPreferencesModule {}
 
 class _$DioModule extends _i10.DioModule {}

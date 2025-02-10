@@ -1,5 +1,6 @@
 import 'package:aktau_go/ui/driver_registration/driver_registration_screen.dart';
 import 'package:aktau_go/ui/main/main_screen.dart';
+import 'package:aktau_go/ui/map_picker/map_picker_screen.dart';
 import 'package:aktau_go/ui/onboarding/onboarding_screen.dart';
 import 'package:aktau_go/ui/registration/registration_screen.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,12 @@ class Routes {
         name: onboardingScreen,
         builder: (context, args, params) => OnboardingScreen(),
       ),
+      SeafarerRoute(
+        name: selectMapPicker,
+        builder: (context, args, params) => MapAddressPickerScreen(
+          args: args as MapAddressPickerScreenArgs,
+        ),
+      ),
     ]);
   }
 
@@ -58,6 +65,7 @@ class Routes {
   static const String registrationScreen = '/registration_screen';
   static const String driverRegistrationScreen = '/driver_registration_screen';
   static const String onboardingScreen = '/onboarding_screen';
+  static const String selectMapPicker = '/select_map_picker';
 }
 
 class MyCustomTransition extends CustomSeafarerTransition {

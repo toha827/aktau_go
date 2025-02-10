@@ -424,20 +424,11 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
   void fetchActiveOrderRoute() async {
     String? sessionId = inject<SharedPreferences>().getString('sessionId');
 
-    final fromAddress = await inject<MapboxApi>().getPlaceDetail(
-      mapboxId: widget.orderRequest.fromMapboxId,
-      sessionToken: sessionId ?? '',
-    );
-    final toAddress = await inject<MapboxApi>().getPlaceDetail(
-      mapboxId: widget.orderRequest.toMapboxId,
-      sessionToken: sessionId ?? '',
-    );
-
     final directions = await inject<MapboxApi>().getDirections(
-      fromLat: fromAddress.features![0].properties!.coordinates!['latitude'],
-      fromLng: fromAddress.features![0].properties!.coordinates!['longitude'],
-      toLat: toAddress.features![0].properties!.coordinates!['latitude'],
-      toLng: toAddress.features![0].properties!.coordinates!['longitude'],
+      fromLat: double.parse(widget.orderRequest.fromMapboxId.split(';')[0]),
+      fromLng: double.parse(widget.orderRequest.fromMapboxId.split(';')[1]),
+      toLat: double.parse(widget.orderRequest.toMapboxId.split(';')[0]),
+      toLng: double.parse(widget.orderRequest.toMapboxId.split(';')[1]),
     );
 
     setState(() {

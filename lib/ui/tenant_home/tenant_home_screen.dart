@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_svg/svg.dart';
 
 import '../../core/images.dart';
@@ -46,15 +48,14 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
           double? draggableScrolledSize,
         ) {
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             body: Stack(
               children: [
                 Positioned(
                   top: 0,
                   left: 0,
                   right: 0,
-                  bottom: (MediaQuery.of(context).size.height *
-                          (draggableScrolledSize ?? 0)) -
-                      100,
+                  bottom: 0,
                   child: Stack(
                     children: [
                       // MyMapboxMap(
@@ -159,11 +160,11 @@ class TenantHomeScreen extends ElementaryWidget<ITenantHomeWM> {
                               bool? showFood,
                             ) {
                               return DraggableScrollableSheet(
-                                initialChildSize: draggableMaxChildSize!,
+                                initialChildSize: 0.3,
                                 controller: wm.draggableScrollableController,
                                 minChildSize: 0.3,
-                                maxChildSize: draggableMaxChildSize,
-                                snap: true,
+                                maxChildSize: 1,
+                                snap: false,
                                 expand: false,
                                 builder: (
                                   context,

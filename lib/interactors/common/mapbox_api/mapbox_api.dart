@@ -20,6 +20,7 @@ abstract class MapboxApi {
   )
   Future<MapboxGeoCodingResponse> getPlaces({
     @Query('q') required String query,
+    @Query('language') String language = 'ru',
     @Query('session_token') required String sessionToken,
     @Query('country') String country = 'kz',
     // @Query('types') String types = 'address',

@@ -23,6 +23,7 @@ class _MapboxApi implements MapboxApi {
   @override
   Future<MapboxGeoCodingResponse> getPlaces({
     required String query,
+    String language = 'ru',
     required String sessionToken,
     String country = 'kz',
     String accessToken =
@@ -31,6 +32,7 @@ class _MapboxApi implements MapboxApi {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'q': query,
+      r'language': language,
       r'session_token': sessionToken,
       r'country': country,
       r'access_token': accessToken,

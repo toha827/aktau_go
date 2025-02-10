@@ -10,11 +10,11 @@ import 'package:aktau_go/utils/num_utils.dart';
 import 'package:aktau_go/utils/utils.dart';
 import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' as mapboxGl;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -43,8 +43,8 @@ class ActiveOrderBottomSheet extends StatefulWidget {
 
 class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   late ActiveRequestDomain activeRequest = widget.activeOrder;
-
-  List<Polyline> polylines = [];
+  late final mapboxGl.MapboxMapController mapboxMapController;
+  // List<Polyline> polylines = [];
 
   int waitingTimerLeft = 180;
 
@@ -55,8 +55,10 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   @override
   void initState() {
     super.initState();
-    widget.activeOrderListener.addListener(() {
-      fetchActiveOrder();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.activeOrderListener.addListener(() {
+        fetchActiveOrder();
+      });
     });
   }
 
@@ -68,29 +70,57 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
 
       String? sessionId = inject<SharedPreferences>().getString('sessionId');
       setState(() {});
-      final fromAddress = await inject<MapboxApi>().getPlaceDetail(
-        mapboxId: response.orderRequest!.fromMapboxId,
-        sessionToken: sessionId ?? '',
-      );
-      final toAddress = await inject<MapboxApi>().getPlaceDetail(
-        mapboxId: response.orderRequest!.toMapboxId,
-        sessionToken: sessionId ?? '',
-      );
 
-      final directions = await inject<MapboxApi>().getDirections(
-        fromLat: fromAddress.features![0].properties!.coordinates!['latitude'],
-        fromLng: fromAddress.features![0].properties!.coordinates!['longitude'],
-        toLat: toAddress.features![0].properties!.coordinates!['latitude'],
-        toLng: toAddress.features![0].properties!.coordinates!['longitude'],
+      final route = await inject<MapboxApi>().getDirections(
+        fromLat: double.parse(
+            activeRequest.orderRequest!.fromMapboxId.split(';')[0]),
+        fromLng: double.parse(
+            activeRequest.orderRequest!.fromMapboxId.split(';')[1]),
+        toLat:
+            double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[0]),
+        toLng:
+            double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[1]),
       );
 
-      logger.w(directions['routes'][0]['geometry']);
+      logger.w(route['routes'][0]['geometry']);
 
-      // polylines = [
-      //   Polyline(
-      //     points: directions['routes'][0]['geometry'],
-      //   )
-      // ];
+      // setState(() {
+      //   polylines = [
+      //     Polyline(
+      //       points: directions['routes'][0]['geometry'],
+      //     )
+      //   ];
+      // });
+
+      await mapboxMapController.removeLayer('lines');
+      await mapboxMapController.removeSource('fills');
+
+      await mapboxMapController.addSource(
+        'fills',
+        mapboxGl.GeojsonSourceProperties(
+          data: {
+            "type": "FeatureCollection",
+            "features": [
+              {
+                "type": "Feature",
+                "id": 0,
+                "properties": <String, dynamic>{},
+                "geometry": route['routes'][0]['geometry'],
+              }
+            ],
+          },
+        ),
+      );
+      await mapboxMapController.addLineLayer(
+        "fills",
+        "lines",
+        mapboxGl.LineLayerProperties(
+          lineColor: Colors.purpleAccent.toHexStringRGB(),
+          lineCap: "round",
+          lineJoin: "round",
+          lineWidth: 2,
+        ),
+      );
     } on Exception catch (e) {
       setState(() {
         isOrderFinished = true;
@@ -403,82 +433,25 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                             Container(
                               width: double.infinity,
                               height: 300,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    "https://via.placeholder.com/344x98",
-                                  ),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              child: FlutterMap(
-                                // mapController: wm.mapboxMapController,
-                                options: MapOptions(
-                                  initialCenter: LatLng(
+                              child: mapboxGl.MapboxMap(
+                                accessToken:
+                                    'sk.eyJ1IjoidmFuZGVydmFpeiIsImEiOiJjbTA1azhkNjEwNDF2MmtzNHA0eWJ3eTR0In0.cSGmIeLW1Wc44gyBBWJsYA',
+                                // myLocationEnabled: true,
+                                onMapCreated: (mapboxController) {
+                                  setState(() {
+                                    mapboxMapController = mapboxController;
+                                  });
+                                },
+                                onStyleLoadedCallback: () {},
+                                myLocationRenderMode:
+                                    mapboxGl.MyLocationRenderMode.GPS,
+                                initialCameraPosition: mapboxGl.CameraPosition(
+                                  target: mapboxGl.LatLng(
                                     activeRequest.orderRequest!.lat.toDouble(),
                                     activeRequest.orderRequest!.lng.toDouble(),
                                   ),
+                                  zoom: 7,
                                 ),
-                                children: [
-                                  openStreetMapTileLayer,
-                                  PolylineLayer(polylines: polylines),
-                                  MarkerLayer(
-                                    // rotate: counterRotate,
-                                    markers: [
-                                      if (activeRequest.orderRequest != null)
-                                        Marker(
-                                          point: LatLng(
-                                            activeRequest.orderRequest!.lat
-                                                .toDouble(),
-                                            activeRequest.orderRequest!.lng
-                                                .toDouble(),
-                                          ),
-                                          width: 16,
-                                          height: 16,
-                                          alignment: Alignment.centerLeft,
-                                          child: Icon(
-                                            Icons.location_on_rounded,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      // if (driverLocation != null)
-                                      //   Marker(
-                                      //     point: LatLng(
-                                      //       driverLocation.latitude.toDouble(),
-                                      //       driverLocation.longitude.toDouble(),
-                                      //     ),
-                                      //     width: 24,
-                                      //     height: 24,
-                                      //     alignment: Alignment.centerLeft,
-                                      //     child: SvgPicture.asset(
-                                      //       icTaxi,
-                                      //       color: primaryColor,
-                                      //     ),
-                                      //   ),
-                                      // Marker(
-                                      //   point:
-                                      //       LatLng(47.18664724067855, -1.5436768515939427),
-                                      //   width: 64,
-                                      //   height: 64,
-                                      //   alignment: Alignment.centerRight,
-                                      //   child: ColoredBox(
-                                      //     color: Colors.pink,
-                                      //     child: Align(
-                                      //       alignment: Alignment.centerLeft,
-                                      //       child: Text('<--'),
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                      // Marker(
-                                      //   point:
-                                      //       LatLng(47.18664724067855, -1.5436768515939427),
-                                      //   rotate: false,
-                                      //   child: ColoredBox(color: Colors.black),
-                                      // ),
-                                    ],
-                                  ),
-                                  CurrentLocationLayer(),
-                                ],
                               ),
                             ),
                           ],
@@ -745,11 +718,11 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
     );
   }
 }
-
-TileLayer get openStreetMapTileLayer => TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-      // Use the recommended flutter_map_cancellable_tile_provider package to
-      // support the cancellation of loading tiles.
-      tileProvider: CancellableNetworkTileProvider(),
-    );
+//
+// TileLayer get openStreetMapTileLayer => TileLayer(
+//       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+//       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+//       // Use the recommended flutter_map_cancellable_tile_provider package to
+//       // support the cancellation of loading tiles.
+//       tileProvider: CancellableNetworkTileProvider(),
+//     );

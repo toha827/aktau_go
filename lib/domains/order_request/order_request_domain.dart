@@ -53,10 +53,10 @@ class OrderRequestDomain {
         from = from ?? '',
         to = to ?? '',
         fromMapboxId = (comment ?? '').split(';').length > 1
-            ? (comment ?? '').split(';')[1]
+            ? '${(comment ?? '').split(';')[1]};${(comment ?? '').split(';')[2]}'
             : fromMapboxId ?? '',
         toMapboxId = (comment ?? '').split(';').length > 1
-            ? (comment ?? '').split(';')[2]
+            ? '${(comment ?? '').split(';')[3]};${(comment ?? '').split(';')[4]}'
             : toMapboxId ?? '',
         lat = lat ?? 0,
         lng = lng ?? 0,

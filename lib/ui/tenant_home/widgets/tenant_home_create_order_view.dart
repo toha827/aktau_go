@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:aktau_go/core/colors.dart';
 import 'package:aktau_go/core/text_styles.dart';
+import 'package:aktau_go/interactors/common/map_tiler_cloud_api/map_tiler_cloud_api.dart';
 import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart';
 import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/models/mapbox/mapbox_feature_model.dart';
+import 'package:aktau_go/router/router.dart';
+import 'package:aktau_go/ui/map_picker/map_picker_screen.dart';
 import 'package:aktau_go/ui/tenant_home/forms/driver_order_form.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:aktau_go/ui/widgets/primary_dropdown.dart';
@@ -23,6 +26,7 @@ import 'package:uuid/v4.dart';
 
 import '../../../core/images.dart';
 import '../../../forms/inputs/required_formz_input.dart';
+import '../../../models/map_tiler/map_tiler_geo_coding_response.dart';
 
 class TenantHomeCreateOrderView extends StatefulWidget {
   final bool isIntercity;
@@ -45,7 +49,7 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
   bool isLoading = false;
   DriverOrderForm driverOrderForm = DriverOrderForm();
 
-  List<MapboxSuggestionModel> suggestions = [];
+  List<Features> suggestions = [];
 
   List<String> cities = [
     'Актау',
@@ -111,39 +115,40 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      inject<MainNavigationInteractor>().lastMapTapped.addListener(() async {
-        LatLng point = inject<MainNavigationInteractor>().lastMapTapped.value!;
-        final response = await inject<MapboxApi>().geoCoding(
-          longitude: point.longitude,
-          latitude: point.latitude,
-        );
-
-        if (!driverOrderForm.toMapboxId.isPure ||
-            driverOrderForm.fromMapboxId.isPure) {
-          setState(() {
-            fromAddressTextController.text =
-                response.features?.first.text ?? "";
-            driverOrderForm = driverOrderForm.copyWith(
-              fromMapboxId:
-                  Required.dirty(response.features!.first.properties?.mapboxId),
-            );
-            toAddressTextController.text = '';
-            driverOrderForm = driverOrderForm.copyWith(
-              toMapboxId: Required.pure(),
-            );
-          });
-        } else {
-          setState(() {
-            toAddressTextController.text = response.features?.first.text ?? "";
-            driverOrderForm = driverOrderForm.copyWith(
-              toMapboxId:
-                  Required.dirty(response.features!.first.properties?.mapboxId),
-            );
-          });
-        }
-      });
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   inject<MainNavigationInteractor>().lastMapTapped.addListener(() async {
+    //     LatLng point = inject<MainNavigationInteractor>().lastMapTapped.value!;
+    //     final response = await inject<MapTilerCloudApi>().geoCoding(
+    //       longitude: point.longitude,
+    //       latitude: point.latitude,
+    //       accessToken: 'HcgJnGUrEU9K93fPa6qG',
+    //     );
+    //
+    //     if (!driverOrderForm.toMapboxId.isPure ||
+    //         driverOrderForm.fromMapboxId.isPure) {
+    //       setState(() {
+    //         fromAddressTextController.text =
+    //             response.features?.first.text ?? "";
+    //         // driverOrderForm = driverOrderForm.copyWith(
+    //         //   fromMapboxId:
+    //         //       Required.dirty(response.features!.first.properties?.mapboxId),
+    //         // );
+    //         toAddressTextController.text = '';
+    //         driverOrderForm = driverOrderForm.copyWith(
+    //           toMapboxId: Required.pure(),
+    //         );
+    //       });
+    //     } else {
+    //       setState(() {
+    //         toAddressTextController.text = response.features?.first.text ?? "";
+    //         driverOrderForm = driverOrderForm.copyWith(
+    //             // toMapboxId:
+    //             //     Required.dirty(response.features!.first.properties?.mapboxId),
+    //             );
+    //       });
+    //     }
+    //   });
+    // });
   }
 
   @override
@@ -176,54 +181,81 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
                   }),
             )
           else
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: greyscale30,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: EasyAutocomplete(
-                controller: fromAddressTextController,
-                asyncSuggestions: getSuggesstions,
-                progressIndicatorBuilder: Center(
-                  child: CircularProgressIndicator(
-                    color: greyscale30,
+            InkWell(
+              onTap: () {
+                Routes.router.navigate(Routes.selectMapPicker,
+                    args: MapAddressPickerScreenArgs(
+                  onSubmit: (latLng, text) async {
+                    final response = await inject<MapTilerCloudApi>().geoCoding(
+                      longitude: latLng.longitude,
+                      latitude: latLng.latitude,
+                      accessToken: 'HcgJnGUrEU9K93fPa6qG',
+                    );
+
+                    fromAddressTextController.text =
+                        response.features?.first.text ?? "";
+                    setState(() {
+                      driverOrderForm = driverOrderForm.copyWith(
+                        fromMapboxId: Required.dirty(
+                          '${response.features?.first.center![1]};${response.features?.first.center![0]}',
+                        ),
+                      );
+                    });
+                  },
+                ));
+              },
+              child: IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: greyscale30,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Откуда*',
-                  border: InputBorder.none,
-                  prefixIcon: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Center(
-                      child: SvgPicture.asset(
-                        icPlacemark,
+                  child: EasyAutocomplete(
+                    controller: fromAddressTextController,
+                    asyncSuggestions: getSuggesstions,
+                    progressIndicatorBuilder: Center(
+                      child: CircularProgressIndicator(
+                        color: greyscale30,
                       ),
                     ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                    decoration: InputDecoration(
+                      hintText: 'Откуда*',
+                      border: InputBorder.none,
+                      prefixIcon: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            icPlacemark,
+                          ),
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                    suggestionBuilder: (String json) {
+                      return ListTile(
+                        title: Text(jsonDecode(json)['label']),
+                      );
+                    },
+                    onSubmitted: _onFromSubmitted,
+                    onChanged: (String json) async {
+                      // widget.onSubmit(
+                      //   LatLng(
+                      //     response.result?.geometry?.location?.lat ?? 0,
+                      //     response.result?.geometry?.location?.lng ?? 0,
+                      //   ),
+                      //   feature.description ?? '',
+                      // );
+                    },
                   ),
                 ),
-                suggestionBuilder: (String json) {
-                  return ListTile(
-                    title: Text(jsonDecode(json)['label']),
-                  );
-                },
-                onSubmitted: _onFromSubmitted,
-                onChanged: (String json) async {
-                  // widget.onSubmit(
-                  //   LatLng(
-                  //     response.result?.geometry?.location?.lat ?? 0,
-                  //     response.result?.geometry?.location?.lng ?? 0,
-                  //   ),
-                  //   feature.description ?? '',
-                  // );
-                },
               ),
             ),
           // Container(
@@ -277,54 +309,81 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
               ),
             )
           else
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: greyscale30,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: EasyAutocomplete(
-                controller: toAddressTextController,
-                asyncSuggestions: getSuggesstions,
-                progressIndicatorBuilder: Center(
-                  child: CircularProgressIndicator(
-                    color: greyscale30,
+            InkWell(
+              onTap: () {
+                Routes.router.navigate(Routes.selectMapPicker,
+                    args: MapAddressPickerScreenArgs(
+                  onSubmit: (latLng, text) async {
+                    final response = await inject<MapTilerCloudApi>().geoCoding(
+                      longitude: latLng.longitude,
+                      latitude: latLng.latitude,
+                      accessToken: 'HcgJnGUrEU9K93fPa6qG',
+                    );
+
+                    toAddressTextController.text =
+                        response.features?.first.text ?? "";
+                    setState(() {
+                      driverOrderForm = driverOrderForm.copyWith(
+                        toMapboxId: Required.dirty(
+                          '${response.features?.first.center![1]};${response.features?.first.center![0]}',
+                        ),
+                      );
+                    });
+                  },
+                ));
+              },
+              child: IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: greyscale30,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Куда*',
-                  border: InputBorder.none,
-                  prefixIcon: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Center(
-                      child: SvgPicture.asset(
-                        icPlacemark,
+                  child: EasyAutocomplete(
+                    controller: toAddressTextController,
+                    asyncSuggestions: getSuggesstions,
+                    progressIndicatorBuilder: Center(
+                      child: CircularProgressIndicator(
+                        color: greyscale30,
                       ),
                     ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                    decoration: InputDecoration(
+                      hintText: 'Куда*',
+                      border: InputBorder.none,
+                      prefixIcon: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            icPlacemark,
+                          ),
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                    suggestionBuilder: (String json) {
+                      return ListTile(
+                        title: Text(jsonDecode(json)['label']),
+                      );
+                    },
+                    onSubmitted: _onToSubmitted,
+                    onChanged: (String json) async {
+                      // widget.onSubmit(
+                      //   LatLng(
+                      //     response.result?.geometry?.location?.lat ?? 0,
+                      //     response.result?.geometry?.location?.lng ?? 0,
+                      //   ),
+                      //   feature.description ?? '',
+                      // );
+                    },
                   ),
                 ),
-                suggestionBuilder: (String json) {
-                  return ListTile(
-                    title: Text(jsonDecode(json)['label']),
-                  );
-                },
-                onSubmitted: _onToSubmitted,
-                onChanged: (String json) async {
-                  // widget.onSubmit(
-                  //   LatLng(
-                  //     response.result?.geometry?.location?.lat ?? 0,
-                  //     response.result?.geometry?.location?.lng ?? 0,
-                  //   ),
-                  //   feature.description ?? '',
-                  // );
-                },
               ),
             ),
           // Container(
@@ -424,22 +483,22 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
       inject<SharedPreferences>().setString('sessionId', sessionId);
     }
 
-    final response = await inject<MapboxApi>().getPlaces(
+    final response = await inject<MapTilerCloudApi>().geoCodingByQuery(
       query: searchValue,
-      sessionToken: sessionId,
+      accessToken: 'HcgJnGUrEU9K93fPa6qG',
     );
 
     setState(() {
-      suggestions = response.suggestions ?? [];
+      suggestions = response.features ?? [];
     });
-    return (response.suggestions ?? [])
+    return (response.features ?? [])
         .map(
           (feature) => jsonEncode({
             'label': [
-              feature.name ?? '',
-              feature.placeFormatted ?? '',
+              feature.text ?? '',
+              // feature.placeFormatted ?? '',
             ].join(','),
-            "mapbox_id": '${feature.mapboxId}'
+            // "mapbox_id": '${feature.mapboxId}'
           }),
         )
         .toList();

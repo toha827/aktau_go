@@ -25,11 +25,11 @@ class OrderRequestPropsModel {
   final num? lat;
   final num? lng;
   final num? price;
-  final String? comment;
+  final String comment;
   final num? rating;
   final String? sessionid;
 
-  const OrderRequestPropsModel({
+  OrderRequestPropsModel({
     this.id,
     this.createdAt,
     this.updatedAt,
@@ -47,10 +47,10 @@ class OrderRequestPropsModel {
     this.lat,
     this.lng,
     this.price,
-    this.comment,
+    String? comment,
     this.rating,
     this.sessionid,
-  });
+  }) : comment = (comment ?? '').split(';')[0];
 
   factory OrderRequestPropsModel.fromJson(Map<String, dynamic> json) =>
       _$OrderRequestPropsModelFromJson(json);

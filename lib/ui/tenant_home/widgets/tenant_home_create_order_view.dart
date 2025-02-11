@@ -4,6 +4,7 @@ import 'package:aktau_go/core/colors.dart';
 import 'package:aktau_go/core/text_styles.dart';
 import 'package:aktau_go/interactors/common/map_tiler_cloud_api/map_tiler_cloud_api.dart';
 import 'package:aktau_go/interactors/common/mapbox_api/mapbox_api.dart';
+import 'package:aktau_go/interactors/common/open_street_map_api/open_street_map_api.dart';
 import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/interactors/main_navigation_interactor.dart';
 import 'package:aktau_go/models/mapbox/mapbox_feature_model.dart';
@@ -186,18 +187,18 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
                 Routes.router.navigate(Routes.selectMapPicker,
                     args: MapAddressPickerScreenArgs(
                   onSubmit: (latLng, text) async {
-                    final response = await inject<MapTilerCloudApi>().geoCoding(
+                    final response =
+                        await inject<OpenStreetMapApi>().getPlaceDetail(
                       longitude: latLng.longitude,
                       latitude: latLng.latitude,
-                      accessToken: 'HcgJnGUrEU9K93fPa6qG',
                     );
 
                     fromAddressTextController.text =
-                        response.features?.first.text ?? "";
+                        response.display_name ?? "";
                     setState(() {
                       driverOrderForm = driverOrderForm.copyWith(
                         fromMapboxId: Required.dirty(
-                          '${response.features?.first.center![1]};${response.features?.first.center![0]}',
+                          '${response.lat};${response.lon}',
                         ),
                       );
                     });
@@ -314,18 +315,17 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
                 Routes.router.navigate(Routes.selectMapPicker,
                     args: MapAddressPickerScreenArgs(
                   onSubmit: (latLng, text) async {
-                    final response = await inject<MapTilerCloudApi>().geoCoding(
+                    final response =
+                        await inject<OpenStreetMapApi>().getPlaceDetail(
                       longitude: latLng.longitude,
                       latitude: latLng.latitude,
-                      accessToken: 'HcgJnGUrEU9K93fPa6qG',
                     );
 
-                    toAddressTextController.text =
-                        response.features?.first.text ?? "";
+                    toAddressTextController.text = response.display_name ?? "";
                     setState(() {
                       driverOrderForm = driverOrderForm.copyWith(
                         toMapboxId: Required.dirty(
-                          '${response.features?.first.center![1]};${response.features?.first.center![0]}',
+                          '${response.lat};${response.lon}',
                         ),
                       );
                     });

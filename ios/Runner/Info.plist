@@ -32,6 +32,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Чтобы показать, где находится ваш водитель, и обеспечить лучшую производительность карты.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Чтобы показать, где находится ваш водитель, и обеспечить лучшую производительность карты.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

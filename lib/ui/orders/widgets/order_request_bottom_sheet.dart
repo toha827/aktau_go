@@ -215,7 +215,7 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                         widget.orderRequest.lat.toDouble(),
                         widget.orderRequest.lng.toDouble(),
                       ),
-                      zoom: 7,
+                      zoom: 10,
                     ),
                   ),
                 ),
@@ -316,10 +316,12 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                                   'assets/icons/placemark.svg',
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  widget.orderRequest.from,
-                                  textAlign: TextAlign.center,
-                                  style: text400Size16Black,
+                                Expanded(
+                                  child: Text(
+                                    widget.orderRequest.from,
+                                    textAlign: TextAlign.center,
+                                    style: text400Size16Black,
+                                  ),
                                 ),
                               ],
                             ),
@@ -347,10 +349,12 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                                   'assets/icons/placemark.svg',
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  widget.orderRequest.to,
-                                  textAlign: TextAlign.center,
-                                  style: text400Size16Black,
+                                Expanded(
+                                  child: Text(
+                                    widget.orderRequest.to,
+                                    textAlign: TextAlign.center,
+                                    style: text400Size16Black,
+                                  ),
                                 ),
                               ],
                             ),

@@ -4,6 +4,7 @@ import 'package:aktau_go/core/colors.dart';
 import 'package:aktau_go/core/text_styles.dart';
 import 'package:aktau_go/interactors/common/map_tiler_cloud_api/map_tiler_cloud_api.dart';
 import 'package:aktau_go/interactors/common/open_street_map_api/open_street_map_api.dart';
+import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/interactors/location_interactor.dart';
 import 'package:aktau_go/models/open_street_map/open_street_map_place_model.dart';
 import 'package:aktau_go/ui/widgets/primary_button.dart';
@@ -34,7 +35,7 @@ class MapAddressPickerScreenArgs extends BaseArguments {
   ) onSubmit;
 
   final Function(
-    OpenStreetMapPlaceModel prediction,
+    String prediction,
   )? onSubmit2;
 
   MapAddressPickerScreenArgs({
@@ -70,7 +71,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
   latlong2.LatLng? latlng;
   bool myLocationEnabled = false;
   String _addressName = '';
-  OpenStreetMapPlaceModel? _selectedGooglePredictions;
+  String? _selectedGooglePredictions;
   bool isLoading = false;
 
   Timer? timer;
@@ -103,13 +104,13 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
       isLoading = true;
     });
     try {
-      final response = await inject<OpenStreetMapApi>().getPlaceDetail(
+      final response = await inject<RestClient>().getPlaceDetail(
         latitude: latitude,
         longitude: longitude,
       );
 
       setState(() {
-        _addressName = response.display_name ?? '';
+        _addressName = response ?? '';
         _selectedGooglePredictions = response;
       });
     } on Exception catch (e) {
@@ -298,8 +299,8 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                             },
                             onChanged: (String json) async {
                               OpenStreetMapPlaceModel feature =
-                                  suggestions.firstWhere((element) =>
-                                      element.display_name == json);
+                                  suggestions.firstWhere(
+                                      (element) => element.name == json);
 
                               _mapController.move(
                                 latlong2.LatLng(
@@ -309,15 +310,15 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                                 14,
                               );
                               setState(() {
-                                _addressName = feature.display_name ?? '';
-                                _selectedGooglePredictions = feature;
+                                _addressName = feature.name ?? '';
+                                _selectedGooglePredictions = feature.name;
                               });
                               widget.args.onSubmit(
                                 LatLng(
                                   feature.lat!,
                                   feature.lon!,
                                 ),
-                                feature.display_name ?? '',
+                                feature.name ?? '',
                               );
                             },
                           ),
@@ -403,12 +404,14 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
 
   Future<List<String>> getSuggestions(String query) async {
     try {
-      final response = await inject<OpenStreetMapApi>().getPlacesQuery(
+      final response = await inject<RestClient>().getPlacesQuery(
         query: query,
+        longitude: inject<SharedPreferences>().getDouble('latitude') ?? 0,
+        latitude: inject<SharedPreferences>().getDouble('longitude') ?? 0,
       );
 
       suggestions = response ?? [];
-      return response?.map((e) => e.display_name ?? '').toList() ?? [];
+      return response?.map((e) => e.name ?? '').toList() ?? [];
     } on Exception catch (e) {}
     return [];
   }

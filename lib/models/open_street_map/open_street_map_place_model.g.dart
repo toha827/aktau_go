@@ -10,7 +10,7 @@ OpenStreetMapPlaceModel _$OpenStreetMapPlaceModelFromJson(
         Map<String, dynamic> json) =>
     OpenStreetMapPlaceModel(
       place_id: (json['place_id'] as num?)?.toInt(),
-      display_name: json['display_name'] as String?,
+      name: json['name'] as String?,
       type: json['type'] as String?,
       addresstype: json['addresstype'] as String?,
       address: json['address'] == null
@@ -25,7 +25,7 @@ Map<String, dynamic> _$OpenStreetMapPlaceModelToJson(
         OpenStreetMapPlaceModel instance) =>
     <String, dynamic>{
       'place_id': instance.place_id,
-      'display_name': instance.display_name,
+      'name': instance.name,
       'type': instance.type,
       'addresstype': instance.addresstype,
       'address': instance.address,

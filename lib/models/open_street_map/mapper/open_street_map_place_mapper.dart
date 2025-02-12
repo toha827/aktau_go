@@ -6,7 +6,7 @@ OpenStreetMapPlaceDomain openStreetMapPlaceMapper(
 ) =>
     OpenStreetMapPlaceDomain(
       place_id: model.place_id,
-      display_name: model.display_name,
+      display_name: model.name,
       type: model.type,
       addresstype: model.addresstype,
       lat: model.lat,

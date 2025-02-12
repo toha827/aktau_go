@@ -7,7 +7,7 @@ part 'open_street_map_place_model.g.dart';
 @JsonSerializable()
 class OpenStreetMapPlaceModel {
   final int? place_id;
-  final String? display_name;
+  final String? name;
   final String? type;
   final String? addresstype;
   final OpenStreetMapPlaceAddressModel? address;
@@ -18,7 +18,7 @@ class OpenStreetMapPlaceModel {
 
   const OpenStreetMapPlaceModel({
     this.place_id,
-    this.display_name,
+    this.name,
     this.type,
     this.addresstype,
     this.address,

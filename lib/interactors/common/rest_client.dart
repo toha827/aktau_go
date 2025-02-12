@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../models/active_client_request/active_client_request_model.dart';
+import '../../models/open_street_map/open_street_map_place_model.dart';
 import '../../models/order_request/order_request_response_model.dart';
 import '../../models/sign_in/sign_in_by_phone_confirm_code_response_model.dart';
 import '../../models/sign_in/sign_in_by_phone_response_model.dart';
@@ -161,5 +162,18 @@ abstract class RestClient {
   @POST('v1/order-requests/make-review')
   Future<void> makeReview({
     @Body() required Map<String, dynamic> body,
+  });
+
+  @GET("v1/order-requests/address")
+  Future<String> getPlaceDetail({
+    @Query('lon') required double longitude,
+    @Query('lat') required double latitude,
+  });
+
+  @GET("v1/order-requests/find-by-name")
+  Future<List<OpenStreetMapPlaceModel>> getPlacesQuery({
+    @Query('search') required String query,
+    @Query('lon') required double longitude,
+    @Query('lat') required double latitude,
   });
 }

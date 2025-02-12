@@ -193,8 +193,7 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
                       latitude: latLng.latitude,
                     );
 
-                    fromAddressTextController.text =
-                        response.display_name ?? "";
+                    fromAddressTextController.text = response.name ?? "";
                     setState(() {
                       driverOrderForm = driverOrderForm.copyWith(
                         fromMapboxId: Required.dirty(
@@ -321,7 +320,7 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
                       latitude: latLng.latitude,
                     );
 
-                    toAddressTextController.text = response.display_name ?? "";
+                    toAddressTextController.text = response.name ?? "";
                     setState(() {
                       driverOrderForm = driverOrderForm.copyWith(
                         toMapboxId: Required.dirty(

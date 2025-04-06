@@ -45,8 +45,7 @@ abstract class IOrdersWM implements IWidgetModel {
 
   StateNotifier<ActiveRequestDomain> get activeOrder;
 
-  StateNotifier<List<DriverRegisteredCategoryDomain>>
-      get driverRegisteredCategories;
+  StateNotifier<List<DriverRegisteredCategoryDomain>> get driverRegisteredCategories;
 
   StateNotifier<UserDomain> get me;
 
@@ -117,8 +116,8 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   );
 
   @override
-  final StateNotifier<List<DriverRegisteredCategoryDomain>>
-      driverRegisteredCategories = StateNotifier(
+  final StateNotifier<List<DriverRegisteredCategoryDomain>> driverRegisteredCategories =
+      StateNotifier(
     initValue: const [],
   );
 
@@ -167,6 +166,13 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   }
 
   @override
+  void dispose() {
+    onUserLocationChanged.cancel();
+    disconnectWebsocket(); // Good to disconnect too
+    super.dispose();
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     fetchOrderRequests();
@@ -175,8 +181,7 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
 
   Future<void> fetchDriverRegisteredCategories() async {
     try {
-      final response =
-          await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
+      final response = await inject<ProfileInteractor>().fetchDriverRegisteredCategories();
 
       driverRegisteredCategories.accept(response);
     } on Exception catch (e) {
@@ -300,6 +305,11 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
   }
 
   Future<void> initializeSocket() async {
+    if (newOrderSocket != null && newOrderSocket!.connected) {
+      logger.i("Socket already connected");
+      return;
+    }
+
     try {
       await _determinePosition();
 

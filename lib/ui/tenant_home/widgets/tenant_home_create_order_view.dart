@@ -184,25 +184,35 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
           else
             InkWell(
               onTap: () {
+                LatLng? latLng = (driverOrderForm.fromMapboxId.value ?? '')
+                        .isNotEmpty
+                    ? LatLng(
+                        double.parse(
+                            driverOrderForm.fromMapboxId.value!.split(';')[0]),
+                        double.parse(
+                            driverOrderForm.fromMapboxId.value!.split(';')[1]))
+                    : null;
                 Routes.router.navigate(Routes.selectMapPicker,
                     args: MapAddressPickerScreenArgs(
-                  onSubmit: (latLng, text) async {
-                    final response =
-                        await inject<OpenStreetMapApi>().getPlaceDetail(
-                      longitude: latLng.longitude,
-                      latitude: latLng.latitude,
-                    );
+                      latLng: latLng,
+                      placeName: driverOrderForm.fromAddress.value,
+                      onSubmit: (latLng, text) async {
+                        final response =
+                            await inject<RestClient>().getPlaceDetail(
+                          longitude: latLng.longitude,
+                          latitude: latLng.latitude,
+                        );
 
-                    fromAddressTextController.text = response.name ?? "";
-                    setState(() {
-                      driverOrderForm = driverOrderForm.copyWith(
-                        fromMapboxId: Required.dirty(
-                          '${response.lat};${response.lon}',
-                        ),
-                      );
-                    });
-                  },
-                ));
+                        fromAddressTextController.text = response ?? "";
+                        setState(() {
+                          driverOrderForm = driverOrderForm.copyWith(
+                            fromMapboxId: Required.dirty(
+                              '${latLng.latitude};${latLng.longitude}',
+                            ),
+                          );
+                        });
+                      },
+                    ));
               },
               child: IgnorePointer(
                 ignoring: true,
@@ -311,25 +321,35 @@ class _TenantHomeCreateOrderViewState extends State<TenantHomeCreateOrderView> {
           else
             InkWell(
               onTap: () {
+                LatLng? latLng = (driverOrderForm.toMapboxId.value ?? "")
+                        .isNotEmpty
+                    ? LatLng(
+                        double.parse(
+                            driverOrderForm.toMapboxId.value!.split(';')[0]),
+                        double.parse(
+                            driverOrderForm.toMapboxId.value!.split(';')[1]))
+                    : null;
                 Routes.router.navigate(Routes.selectMapPicker,
                     args: MapAddressPickerScreenArgs(
-                  onSubmit: (latLng, text) async {
-                    final response =
-                        await inject<OpenStreetMapApi>().getPlaceDetail(
-                      longitude: latLng.longitude,
-                      latitude: latLng.latitude,
-                    );
+                      latLng: latLng,
+                      placeName: driverOrderForm.toAddress.value,
+                      onSubmit: (latLng, text) async {
+                        final response =
+                            await inject<RestClient>().getPlaceDetail(
+                          longitude: latLng.longitude,
+                          latitude: latLng.latitude,
+                        );
 
-                    toAddressTextController.text = response.name ?? "";
-                    setState(() {
-                      driverOrderForm = driverOrderForm.copyWith(
-                        toMapboxId: Required.dirty(
-                          '${response.lat};${response.lon}',
-                        ),
-                      );
-                    });
-                  },
-                ));
+                        toAddressTextController.text = response ?? "";
+                        setState(() {
+                          driverOrderForm = driverOrderForm.copyWith(
+                            toMapboxId: Required.dirty(
+                              '${latLng.latitude};${latLng.longitude}',
+                            ),
+                          );
+                        });
+                      },
+                    ));
               },
               child: IgnorePointer(
                 ignoring: true,

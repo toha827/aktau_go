@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:aktau_go/ui/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
@@ -40,7 +43,9 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
   @override
   void initState() {
     super.initState();
-    fetchActiveOrderRoute();
+    Future.wait([
+      fetchActiveOrderRoute(),
+    ]);
   }
 
   @override
@@ -207,6 +212,8 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
                       setState(() {
                         mapboxMapController = mapboxController;
                       });
+                      addImageFromAsset('point_a', 'assets/images/point_a.png');
+                      addImageFromAsset('point_b', 'assets/images/point_b.png');
                     },
                     onStyleLoadedCallback: () {},
                     myLocationRenderMode: MyLocationRenderMode.GPS,
@@ -425,7 +432,7 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
     );
   }
 
-  void fetchActiveOrderRoute() async {
+  Future<void> fetchActiveOrderRoute() async {
     String? sessionId = inject<SharedPreferences>().getString('sessionId');
 
     final directions = await inject<MapboxApi>().getDirections(
@@ -458,6 +465,25 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
         },
       ),
     );
+
+    await mapboxMapController.addSymbol(SymbolOptions(
+      geometry: LatLng(
+        double.parse(widget.orderRequest.fromMapboxId.split(';')[0]),
+        double.parse(widget.orderRequest.fromMapboxId.split(';')[1]),
+      ),
+      iconImage: 'point_a',
+      iconSize: 0.2,
+    ));
+
+    await mapboxMapController.addSymbol(SymbolOptions(
+      geometry: LatLng(
+        double.parse(widget.orderRequest.toMapboxId.split(';')[0]),
+        double.parse(widget.orderRequest.toMapboxId.split(';')[1]),
+      ),
+      iconImage: 'point_b',
+      iconSize: 0.2,
+    ));
+
     await mapboxMapController.addLineLayer(
       "fills",
       "lines",
@@ -468,6 +494,12 @@ class _OrderRequestBottomSheetState extends State<OrderRequestBottomSheet> {
         lineWidth: 2,
       ),
     );
+  }
+
+  Future<void> addImageFromAsset(String name, String assetName) async {
+    final ByteData bytes = await rootBundle.load(assetName);
+    final Uint8List list = bytes.buffer.asUint8List();
+    return mapboxMapController.addImage(name, list);
   }
 }
 

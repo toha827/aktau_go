@@ -7,7 +7,7 @@ import 'interceptors/auth_interceptor.dart';
 import 'interceptors/exception_interceptor.dart';
 import 'interceptors/logger_interceptor.dart';
 
-const _timeout = 30;
+const _timeout = 300;
 
 @module
 abstract class DioModule {

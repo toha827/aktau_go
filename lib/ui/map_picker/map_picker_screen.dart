@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:aktau_go/core/colors.dart';
 import 'package:aktau_go/core/text_styles.dart';
-import 'package:aktau_go/interactors/common/map_tiler_cloud_api/map_tiler_cloud_api.dart';
-import 'package:aktau_go/interactors/common/open_street_map_api/open_street_map_api.dart';
 import 'package:aktau_go/interactors/common/rest_client.dart';
 import 'package:aktau_go/interactors/location_interactor.dart';
 import 'package:aktau_go/models/open_street_map/open_street_map_place_model.dart';
@@ -15,20 +13,20 @@ import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
-import 'package:lottie/lottie.dart' as lottie;
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:geolocator/geolocator.dart' as geoLocator;
 import 'package:latlong2/latlong.dart' as latlong2;
-import 'package:location/location.dart';
 import 'package:seafarer/seafarer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/map_tiler/map_tiler_geo_coding_response.dart';
 import '../../router/router.dart';
 import '../../utils/text_editing_controller.dart';
 import '../orders/widgets/order_request_bottom_sheet.dart';
 
 class MapAddressPickerScreenArgs extends BaseArguments {
+  final latlong2.LatLng? latLng;
+  final String? placeName;
+
   final Function(
     LatLng latLng,
     String placeName,
@@ -39,6 +37,8 @@ class MapAddressPickerScreenArgs extends BaseArguments {
   )? onSubmit2;
 
   MapAddressPickerScreenArgs({
+    this.latLng,
+    this.placeName,
     required this.onSubmit,
     this.onSubmit2,
   });
@@ -59,7 +59,7 @@ class MapAddressPickerScreen extends StatefulWidget {
 class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
   final MapController _mapController = MapController();
   late TextEditingController _textFieldController = createTextEditingController(
-    initialText: '',
+    initialText: widget.args.placeName ?? '',
     onChanged: onPlaceSearchChanged,
   );
   bool _showDeleteButton = false;
@@ -70,7 +70,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
   List<OpenStreetMapPlaceModel> suggestions = [];
   latlong2.LatLng? latlng;
   bool myLocationEnabled = false;
-  String _addressName = '';
+  late String _addressName = widget.args.placeName ?? '';
   String? _selectedGooglePredictions;
   bool isLoading = false;
 
@@ -177,11 +177,16 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                     options: MapOptions(
                       minZoom: 7,
                       // maxZoom: 16,
-                      initialCenter: userLocation != null
+                      initialCenter: widget.args.latLng != null
                           ? latlong2.LatLng(
-                              userLocation.latitude, userLocation.longitude)
-                          : latlng ?? latlong2.LatLng(43.239337, 76.893156),
-                      initialZoom: 13,
+                              widget.args.latLng!.latitude,
+                              widget.args.latLng!.longitude,
+                            )
+                          : userLocation != null
+                              ? latlong2.LatLng(
+                                  userLocation.latitude, userLocation.longitude)
+                              : latlng ?? latlong2.LatLng(43.239337, 76.893156),
+                      initialZoom: 16,
                     ),
                     mapController: _mapController,
                     children: [
@@ -307,7 +312,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                                   feature.lat!,
                                   feature.lon!,
                                 ),
-                                14,
+                                16,
                               );
                               setState(() {
                                 _addressName = feature.name ?? '';
@@ -406,8 +411,8 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
     try {
       final response = await inject<RestClient>().getPlacesQuery(
         query: query,
-        longitude: inject<SharedPreferences>().getDouble('latitude') ?? 0,
-        latitude: inject<SharedPreferences>().getDouble('longitude') ?? 0,
+        latitude: inject<SharedPreferences>().getDouble('latitude') ?? 0,
+        longitude: inject<SharedPreferences>().getDouble('longitude') ?? 0,
       );
 
       suggestions = response ?? [];

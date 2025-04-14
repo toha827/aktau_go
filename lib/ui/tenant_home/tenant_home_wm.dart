@@ -73,6 +73,8 @@ abstract class ITenantHomeWM implements IWidgetModel {
 
   StateNotifier<bool> get showFood;
 
+  StateNotifier<bool> get rateOpened;
+
   StateNotifier<double> get draggableScrolledSize;
 
   DraggableScrollableController get draggableScrollableController;
@@ -151,6 +153,10 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   final StateNotifier<bool> isOrderRejected = StateNotifier(
     initValue: false,
   );
+  @override
+  final StateNotifier<bool> rateOpened = StateNotifier(
+    initValue: false,
+  );
 
   @override
   final StateNotifier<List<FoodCategoryDomain>> foodCategories = StateNotifier(
@@ -166,11 +172,9 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
   final StateNotifier<UserDomain> me = StateNotifier();
 
   @override
-  final StateNotifier<geoLocator.LocationPermission> locationPermission =
-      StateNotifier();
+  final StateNotifier<geoLocator.LocationPermission> locationPermission = StateNotifier();
 
-  late final TextEditingController commentTextController =
-      createTextEditingController();
+  late final TextEditingController commentTextController = createTextEditingController();
 
   @override
   void initWidgetModel() {
@@ -335,8 +339,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
       "lat": userLocation.value?.latitude,
       "price": form.cost.value,
       "orderType": taxi.key,
-      "comment":
-          '${form.comment};${form.fromMapboxId.value};${form.toMapboxId.value}',
+      "comment": '${form.comment};${form.fromMapboxId.value};${form.toMapboxId.value}',
       "fromMapboxId": form.fromMapboxId.value,
       "toMapboxId": form.toMapboxId.value,
     });
@@ -474,8 +477,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
         print('Received new order: $data');
         LatLng point;
         if (data['lat'] is String) {
-          point = LatLng(double.tryParse(data['lat']) ?? 0,
-              double.tryParse(data['lng']) ?? 0);
+          point = LatLng(double.tryParse(data['lat']) ?? 0, double.tryParse(data['lng']) ?? 0);
         } else {
           point = LatLng(data['lat'], data['lng']);
         }
@@ -505,7 +507,9 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
     try {
       final response = await model.getMyClientActiveOrder();
       if (response.order?.orderStatus == 'COMPLETED' &&
-          response.order?.rating == null) {
+          response.order?.rating == null &&
+          rateOpened.value == false) {
+        rateOpened.accept(true);
         await showModalBottomSheet(
           context: context,
           isDismissible: true,
@@ -612,6 +616,7 @@ class TenantHomeWM extends WidgetModel<TenantHomeScreen, TenantHomeModel>
             ),
           ),
         );
+        rateOpened.accept(false);
       }
       if (response.order?.orderStatus != 'COMPLETED') {
         activeOrder.accept(response);

@@ -50,6 +50,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
 
   Timer? waitingTimer;
 
+  bool isLoading = false;
   bool isOrderFinished = false;
 
   @override
@@ -72,14 +73,10 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
       setState(() {});
 
       final route = await inject<MapboxApi>().getDirections(
-        fromLat: double.parse(
-            activeRequest.orderRequest!.fromMapboxId.split(';')[0]),
-        fromLng: double.parse(
-            activeRequest.orderRequest!.fromMapboxId.split(';')[1]),
-        toLat:
-            double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[0]),
-        toLng:
-            double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[1]),
+        fromLat: double.parse(activeRequest.orderRequest!.fromMapboxId.split(';')[0]),
+        fromLng: double.parse(activeRequest.orderRequest!.fromMapboxId.split(';')[1]),
+        toLat: double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[0]),
+        toLng: double.parse(activeRequest.orderRequest!.toMapboxId.split(';')[1]),
       );
 
       logger.w(route['routes'][0]['geometry']);
@@ -129,23 +126,33 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   }
 
   Future<void> arrivedDriver() async {
-    await inject<OrderRequestsInteractor>().arrivedOrderRequest(
-      driver: widget.me,
-      orderRequest: widget.activeOrder.orderRequest!,
-    );
-
-    waitingTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (waitingTimerLeft > 0) {
-        setState(() {
-          waitingTimerLeft--;
-        });
-      } else {
-        rejectOrder();
-        timer.cancel();
-      }
+    setState(() {
+      isLoading = false;
     });
+    try {
+      await inject<OrderRequestsInteractor>().arrivedOrderRequest(
+        driver: widget.me,
+        orderRequest: widget.activeOrder.orderRequest!,
+      );
 
-    fetchActiveOrder();
+      waitingTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+        if (waitingTimerLeft > 0) {
+          setState(() {
+            waitingTimerLeft--;
+          });
+        } else {
+          rejectOrder();
+          timer.cancel();
+        }
+      });
+
+      fetchActiveOrder();
+    } on Exception catch (e) {
+      // TODO
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> rejectOrder() async {
@@ -184,8 +191,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                       textStyle: text400Size16White,
                       onPressed: () async {
                         Navigator.of(context).pop();
-                        await inject<OrderRequestsInteractor>()
-                            .rejectOrderRequest(
+                        await inject<OrderRequestsInteractor>().rejectOrderRequest(
                           orderRequestId: widget.activeOrder.orderRequest!.id,
                         );
                         fetchActiveOrder();
@@ -202,20 +208,41 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
   }
 
   Future<void> startDrive() async {
-    await inject<OrderRequestsInteractor>().startOrderRequest(
-      driver: widget.me,
-      orderRequest: widget.activeOrder.orderRequest!,
-    );
-    waitingTimer?.cancel();
-    fetchActiveOrder();
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await inject<OrderRequestsInteractor>().startOrderRequest(
+        driver: widget.me,
+        orderRequest: widget.activeOrder.orderRequest!,
+      );
+      waitingTimer?.cancel();
+      fetchActiveOrder();
+    } on Exception catch (e) {
+      // TODO
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> endDrive() async {
-    await inject<OrderRequestsInteractor>().endOrderRequest(
-      driver: widget.me,
-      orderRequest: widget.activeOrder.orderRequest!,
-    );
-    fetchActiveOrder();
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await inject<OrderRequestsInteractor>().endOrderRequest(
+        driver: widget.me,
+        orderRequest: widget.activeOrder.orderRequest!,
+      );
+      fetchActiveOrder();
+    } on Exception catch (e) {
+      // TODO
+    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -246,8 +273,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      if (!isOrderFinished &&
-                          activeRequest.orderRequest?.orderStatus == 'STARTED')
+                      if (!isOrderFinished && activeRequest.orderRequest?.orderStatus == 'STARTED')
                         SizedBox(
                           width: double.infinity,
                           child: Text(
@@ -323,8 +349,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
-                            side:
-                                BorderSide(width: 1, color: Color(0xFFE7E1E1)),
+                            side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
@@ -338,8 +363,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                               height: 48,
                               decoration: ShapeDecoration(
                                 image: DecorationImage(
-                                  image: NetworkImage(
-                                      "https://via.placeholder.com/48x48"),
+                                  image: NetworkImage("https://via.placeholder.com/48x48"),
                                   fit: BoxFit.cover,
                                 ),
                                 shape: OvalBorder(),
@@ -354,9 +378,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.activeOrder.whatsappUser
-                                              ?.fullName ??
-                                          '',
+                                      widget.activeOrder.whatsappUser?.fullName ?? '',
                                       textAlign: TextAlign.center,
                                       style: text400Size16Greyscale90,
                                     ),
@@ -386,18 +408,15 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      if ((widget.activeOrder.orderRequest?.comment ?? '')
-                          .isNotEmpty)
+                      if ((widget.activeOrder.orderRequest?.comment ?? '').isNotEmpty)
                         Container(
                           width: double.infinity,
                           margin: const EdgeInsets.only(bottom: 24),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: ShapeDecoration(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  width: 1, color: Color(0xFFE7E1E1)),
+                              side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
@@ -409,8 +428,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                               Expanded(
                                 child: SizedBox(
                                   child: Text(
-                                    widget.activeOrder.orderRequest?.comment ??
-                                        '',
+                                    widget.activeOrder.orderRequest?.comment ?? '',
                                     style: text400Size12Greyscale90,
                                   ),
                                 ),
@@ -423,8 +441,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         clipBehavior: Clip.antiAlias,
                         decoration: ShapeDecoration(
                           shape: RoundedRectangleBorder(
-                            side:
-                                BorderSide(width: 1, color: Color(0xFFE7E1E1)),
+                            side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
@@ -443,8 +460,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                   });
                                 },
                                 onStyleLoadedCallback: () {},
-                                myLocationRenderMode:
-                                    mapboxGl.MyLocationRenderMode.GPS,
+                                myLocationRenderMode: mapboxGl.MyLocationRenderMode.GPS,
                                 initialCameraPosition: mapboxGl.CameraPosition(
                                   target: mapboxGl.LatLng(
                                     activeRequest.orderRequest!.lat.toDouble(),
@@ -474,10 +490,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                       Expanded(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Откуда',
@@ -488,10 +502,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                               width: double.infinity,
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   SvgPicture.asset(
                                                     'assets/icons/placemark.svg',
@@ -499,11 +511,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                                   const SizedBox(width: 4),
                                                   Expanded(
                                                     child: Text(
-                                                      widget
-                                                              .activeOrder
-                                                              .orderRequest
-                                                              ?.from ??
-                                                          '',
+                                                      widget.activeOrder.orderRequest?.from ?? '',
                                                       textAlign: TextAlign.left,
                                                       style: text400Size16Black,
                                                     ),
@@ -517,10 +525,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                       Expanded(
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Куда',
@@ -530,10 +536,8 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                             Container(
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   SvgPicture.asset(
                                                     'assets/icons/placemark.svg',
@@ -541,11 +545,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                                                   const SizedBox(width: 4),
                                                   Expanded(
                                                     child: Text(
-                                                      widget
-                                                              .activeOrder
-                                                              .orderRequest
-                                                              ?.to ??
-                                                          '',
+                                                      widget.activeOrder.orderRequest?.to ?? '',
                                                       textAlign: TextAlign.left,
                                                       style: text400Size16Black,
                                                     ),
@@ -574,8 +574,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                         decoration: ShapeDecoration(
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
-                            side:
-                                BorderSide(width: 1, color: Color(0xFFE7E1E1)),
+                            side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -604,8 +603,7 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                           decoration: ShapeDecoration(
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  width: 1, color: Color(0xFFE7E1E1)),
+                              side: BorderSide(width: 1, color: Color(0xFFE7E1E1)),
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
@@ -630,38 +628,37 @@ class _ActiveOrderBottomSheetState extends State<ActiveOrderBottomSheet> {
                   ),
                 ),
               ),
-              if (!isOrderFinished &&
-                  activeRequest.orderRequest?.orderStatus == 'STARTED')
+              if (!isOrderFinished && activeRequest.orderRequest?.orderStatus == 'STARTED')
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(
                     onPressed: arrivedDriver,
+                    isLoading: isLoading,
                     text: 'Включить ожидание',
                     textStyle: text400Size16White,
                   ),
                 )
-              else if (!isOrderFinished &&
-                  activeRequest.orderRequest?.orderStatus == 'WAITING')
+              else if (!isOrderFinished && activeRequest.orderRequest?.orderStatus == 'WAITING')
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(
                     onPressed: startDrive,
+                    isLoading: isLoading,
                     text: 'Начать поездку',
                     textStyle: text400Size16White,
                   ),
                 )
-              else if (!isOrderFinished &&
-                  activeRequest.orderRequest?.orderStatus == 'ONGOING')
+              else if (!isOrderFinished && activeRequest.orderRequest?.orderStatus == 'ONGOING')
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(
                     onPressed: endDrive,
+                    isLoading: isLoading,
                     text: 'Завершить',
                     textStyle: text400Size16White,
                   ),
                 )
-              else if (isOrderFinished ||
-                  activeRequest.orderRequest?.orderStatus == "REJECTED")
+              else if (isOrderFinished || activeRequest.orderRequest?.orderStatus == "REJECTED")
                 SizedBox(
                   width: double.infinity,
                   child: PrimaryButton.primary(

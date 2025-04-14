@@ -183,8 +183,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                               widget.args.latLng!.longitude,
                             )
                           : userLocation != null
-                              ? latlong2.LatLng(
-                                  userLocation.latitude, userLocation.longitude)
+                              ? latlong2.LatLng(userLocation.latitude, userLocation.longitude)
                               : latlng ?? latlong2.LatLng(43.239337, 76.893156),
                       initialZoom: 16,
                     ),
@@ -213,8 +212,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                       } else {
                         _mapController.move(
                           userLocation != null
-                              ? latlong2.LatLng(userLocation!.latitude,
-                                  userLocation!.longitude)
+                              ? latlong2.LatLng(userLocation!.latitude, userLocation!.longitude)
                               : latlng ?? latlong2.LatLng(43.239337, 76.893156),
                           14,
                         );
@@ -250,8 +248,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                           width: 45,
                           height: 45,
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: Colors.white),
+                              borderRadius: BorderRadius.circular(50), color: Colors.white),
                           child: Center(
                             child: Icon(
                               Icons.arrow_back_ios_rounded,
@@ -304,8 +301,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                             },
                             onChanged: (String json) async {
                               OpenStreetMapPlaceModel feature =
-                                  suggestions.firstWhere(
-                                      (element) => element.name == json);
+                                  suggestions.firstWhere((element) => element.name == json);
 
                               _mapController.move(
                                 latlong2.LatLng(
@@ -374,8 +370,7 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                                 child: PrimaryButton.primary(
                                   height: 30,
                                   onPressed: () async {
-                                    final coordinates =
-                                        await _mapController.camera.center;
+                                    final coordinates = await _mapController.camera.center;
                                     widget.args.onSubmit(
                                       LatLng(
                                         coordinates.latitude,
@@ -386,7 +381,9 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
                                     widget.args.onSubmit2?.call(
                                       _selectedGooglePredictions!,
                                     );
-                                    Routes.router.pop();
+                                    Routes.router.popUntil(
+                                      (predicate) => predicate.isFirst,
+                                    );
                                   },
                                   child: Text(
                                     'Выбрать'.tr(),
@@ -432,6 +429,11 @@ class _MapAddressPickerScreenState extends State<MapAddressPickerScreen> {
     latlng = latlong2.LatLng(
       inject<SharedPreferences>().getDouble('latitude') ?? 0,
       inject<SharedPreferences>().getDouble('longitude') ?? 0,
+    );
+    _mapController.move(latlng!, 14);
+    _updateAddressName(
+      latlng!.latitude,
+      latlng!.longitude,
     );
 
     _mapController.mapEventStream.listen((event) {

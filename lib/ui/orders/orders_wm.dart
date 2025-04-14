@@ -222,13 +222,14 @@ class OrdersWM extends WidgetModel<OrdersScreen, OrdersModel>
     await showModalBottomSheet(
       context: context,
       isDismissible: true,
+      enableDrag: false,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => OrderRequestBottomSheet(
         orderRequest: e,
         onAccept: () async {
           await acceptOrderRequest(e);
-          Navigator.of(context).pop();
+          Routes.router.popUntil((predicate) => predicate.isFirst);
           fetchOrderRequests();
         },
       ),

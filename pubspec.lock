@@ -778,7 +778,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d4aee363c31ea92b6c79ac569d3e0984686411e3
+      resolved-ref: "4a09cc4401bb77e900f005cc1e2f712193b997af"
       url: "https://github.com/flutter-mapbox-gl/maps.git"
     source: git
     version: "0.16.0"
@@ -795,7 +795,7 @@ packages:
     description:
       path: mapbox_gl_platform_interface
       ref: HEAD
-      resolved-ref: d4aee363c31ea92b6c79ac569d3e0984686411e3
+      resolved-ref: "4a09cc4401bb77e900f005cc1e2f712193b997af"
       url: "https://github.com/tobrun/flutter-mapbox-gl.git"
     source: git
     version: "0.16.0"
@@ -804,7 +804,7 @@ packages:
     description:
       path: mapbox_gl_web
       ref: HEAD
-      resolved-ref: d4aee363c31ea92b6c79ac569d3e0984686411e3
+      resolved-ref: "4a09cc4401bb77e900f005cc1e2f712193b997af"
       url: "https://github.com/tobrun/flutter-mapbox-gl.git"
     source: git
     version: "0.16.0"
